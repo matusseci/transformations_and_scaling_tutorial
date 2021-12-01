@@ -1,5 +1,5 @@
 ---
-theme: jekyll-theme-minimal
+theme: jekyll-theme-cayman
 title: Data distributions, transformations and scaling
 subtitle: Understand fundamental concepts of understanding and preparing data for modelling
 date: 28/11/2021
