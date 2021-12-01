@@ -1,5 +1,5 @@
 ---
-layout: minimal
+layout: tutorial
 title: Data distributions, transformations and scaling
 subtitle: Understand fundamental concepts of understanding and preparing data for modelling
 date: 28/11/2021
@@ -187,7 +187,7 @@ As we can see our data are right-skewed. We can also plot a simple scatter plot 
          title = 'Population abundance of white stork') +
     plot_theme())  # apply the custom theme
 ```
-**INSERT PLOT**
+<center> <img src="{{ site.baseurl }}/stork_scatter.png" alt="Img" style="width: 800px;"/> </center>!
 
 This means that we need to apply a **logarithmic transformation** which will **linearize** the data and we will be able to fit linear model. Luckily, this procedure is very simple in R using a base R function `log()`. Together with `mutate()` function we can create a new column with the transformed data so that we do not overwrite the original data in case we want to use them later.
 
@@ -207,7 +207,7 @@ stork <- stork %>%
     plot_theme())  # apply the custom theme
 ```   
 
-**INSERT PLOT***
+<center> <img src="{{ site.baseurl }}/stork_scatter_log.png" alt="Img" style="width: 800px;"/> </center>!
 
 We can see that the data have been constrained to a much narrower range (y-axis) and while there is not a crystal clear linear pattern we could argue that a linear line would fit the best for this scatter plot. Let's have a look at how the data distribution changed by looking at a histogram.
 
@@ -222,7 +222,8 @@ We can see that the data have been constrained to a much narrower range (y-axis)
     plot_theme())
 ```
 
-**INSERT PLOT**
+<center> <img src="{{ site.baseurl }}/stork_log_hist.png" alt="Img" style="width: 800px;"/> </center>!
+
 Now this look much closer to the normal distribution than the previous histogram! You can see the transformation in practice in the animation below.
 
 **INSERT ANIMATION**
@@ -232,9 +233,9 @@ Now this look much closer to the normal distribution than the previous histogram
 Our data look quite normally distributed now but we might think that a **weaker** transformation could result in a data more centered than what we have now.
 
 ## Square-root transformation
-**Square root transformation** looks works in a very similar way as logarithmic transformation and is used in similar situations (right-skewed data), however, it is a **weaker** transformation. What do we mean by weaker? Well, to answer this question it is a good idea to look at the functions of these mathematical functions.
+**Square root transformation** looks works in a very similar way as logarithmic transformation and is used in similar situations (right-skewed data), however, it is a **weaker** transformation. What do we mean by weaker? Well, to answer this question it is a good idea to look at the graphs of these mathematical functions.
 
-**INSERT THE FUNCTIONS**
+<center> <img src="{{ site.baseurl }}/log_sqrt_func.png" alt="Img" style="width: 800px;"/> </center>!
 
 As you can see the logarithmic function levels off much more quickly which means that it squishes large values much more strongly than square-root. As a result, with log transformation extreme values in the dataset will not have as strong an effect. The plots also indicate that square-root transformation has the same disadvantage as log transformation - it can only be used on positive non-zero data.
 
@@ -254,7 +255,7 @@ stork <- stork %>%
     plot_theme())
 ```   
 
-**INSERT THE PLOT**
+<center> <img src="{{ site.baseurl }}/stork_hist_sqrt.png" alt="Img" style="width: 800px;"/> </center>!
 
 This does not look bad but the data are still quite skewed. This probably means that out of the three options we have seen the most normal looking distribution would be achieved with the log transformation. While it would be completely alright to use log transformed data we will extend this a bit more and introduce a more advanced concept called **Box-Cox transformation**.
 
@@ -265,7 +266,7 @@ Box-Cox transformation is a stiatistical procedure developed by Geoerge Box and 
 
 We can see that the transformation is determined by a parameter **lambda** and **if lambda is 0 the transformation is simply log transformation**. Essentially, Box-Cox transformation uses the above equation and different lambda values to test different strengths of transformations and determines at which lambda value the distribution is most normal. It is therefore much more **precise** then just comparing sqrt and log transformations - it tries out many more options! The animation below demonstrates how the different lambda values change the results of transformation.
 
-**Insert animation**
+<center> <img src="{{ site.baseurl }}/animated_boxcox.gif" alt="Img" style="width: 800px;"/> </center>!
 
 Now let's try to use Box-Cox transformation on our data. To do this we can use `boxcox()` function from `MASS` package which we have loaded earlier. `boxcox` function takes as an argument either a **model object** or a **model formula** so we will start with building a simple linear model from the original data using `lm()` function looking at how the abundance changed over time (year ~ pop). With default values it tests values for lambda in the range (-2, 2) with 0.1 steps so quite a few lambda values!
 
@@ -303,7 +304,7 @@ stork <- stork %>%
     plot_theme())
 ```
 
-**insert the histogram**
+<center> <img src="{{ site.baseurl }}/stork_hist_bc.png" alt="Img" style="width: 800px;"/> </center>!
 
 We can see that the distribution is very similar to the one we got using the log transformation. This is not surprising since the lambda value we used was approximately 0.1 and lambda = 0 would result in log transformation. You can probably now see that in our situation using the log transformation would be a pretty good approximation to the Box-Cox optimal result.
 
@@ -405,7 +406,7 @@ stork.pred$std.error <- (stork.pred$std.error*lambda + 1)^(1/lambda)
 )
 ```
 
-**insert the model predictions plot**
+<center> <img src="{{ site.baseurl }}/stork_plot.png" alt="Img" style="width: 800px;"/> </center>!
 
 We can see that the prediction line is not straight but is more of a curve which reflects the fact that we have used transformed data. We have also corrected the slope and standard deviation from the model to correct values.
 
@@ -415,7 +416,7 @@ This is the end of the first part of the tutorial. You should now be comfortable
 
 Scaling describes a set of procedures used to adjust the distribution of the data, particularly its **range** through **linear transformation**. Linear transformation in this context means that it uses only basic arithmetic operations (addition, subtraction, multiplication, division) and not exponentiating or logarithms. You might now ask the question, in what situations we would not use transformations like log and sqrt but use scaling? Imagine that you have a dataset of species abundance measurements where some data were obtained by counts (units = individuals) and others using a population index (no units). The former might be in a range of 1000s while the other will have value from 0 - 1! Is it possible to directly compare the two? Of course not. This is where scaling comes in. It allows us to put two variables on **the same scale** and thus make them **comparable**.  In this tutorial we will cover the two most common types of scaling: **standardization** and **normalization**.   
 
-**insert picture of standardization and normalization**
+<center> <img src="{{ site.baseurl }}/scaling_demo.png" alt="Img" style="width: 800px;"/> </center>!
 
 ## Standardization
 As in the case of transformation we will work with a dataset from Living Planet Index. This time we will use population data on the atlantic salmon (__Salmo salar__) but unlike in the previous case we will keep all the observations. We will answer a similar question to the one in the previous example: Did the population of the atlantic salmon decrease over time? Let's extract the data from the main dataset and look at the `units` variable to see what units the population measurements are in.
@@ -451,7 +452,7 @@ ggsave(plot = salmon_density_loc,
        width = 10, height = 12, units = 'in')
 ```
 
-** insert plot of the distributions**
+<center> <img src="{{ site.baseurl }}/salmon_hist_loc.png" alt="Img" style="width: 800px;"/> </center>
 
 We can see that the individual populations have different distributions but many of them are close to normal distribution on their own scale which is good. This means that we can use **standardization** to scale the data.
 
@@ -498,7 +499,7 @@ salmon_hist_scaled <- ggplot(data = salmon) +
                           nrow = 1,  # number of row in the panel
                           ncol = 2))  # number of columns in the panel
 ```
-**insert the histogram panel**
+<center> <img src="{{ site.baseurl }}/salmon_dist_panel.png" alt="Img" style="width: 800px;"/> </center>
 
 This is a huge difference! We can clearly see that our data are now centered on 0 and the distribution look very close to normal, even if slightly skewed but compared to the original data this is an incredible improvement.
 We would now proceed with modelling the data using the transformed variable but since the procedure would be essentially the same as in the transformation example above we will not fully repeat the explanation process here.
@@ -571,8 +572,7 @@ penguins_norm <- predict(penguins_mapping, penguins)  # we transform the data us
 ```
 This is much neater than the previous procedure. You can explore the other transformations available in `preProcess()` in the documentation by using the command `help(preProcess)` in your console. The code for histograms has also got quite repetetive at this point so we will not write the full code here but this is what the histograms would look like for each of the variables with original, unscaled data and normalized data.
 
-
-**insert histograms picture**
+<center> <img src="{{ site.baseurl }}/penguin_panel.png" alt="Img" style="width: 800px;"/> </center>
 
 As you can see the shapes of the histograms have not changed which is what we would expect. However, if you look at the x-axis there is a clear change in the scale which is exactly what we wanted to achieve.
 
