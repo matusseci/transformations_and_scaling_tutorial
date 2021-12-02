@@ -8,41 +8,39 @@ author: Matus Seci
 
 # Tutorial aims:
 
-1. Be able to describe common types of distributions found in ecological and environmental data
-2. Understand the purpose of transformations and scaling in statistical analysis and use appropriate syntax in R to apply both common and more advanced transformations and scaling
-3. Learn how to reverse transformations and scaling to obtain estimates in the original units of measure
-4. Learn how to apply these concepts to real problems involving data through a worked examples
-
+1. Understand the purpose of transformations and scaling in statistical analysis.
+2. Understand the underlying mathematics and use appropriate syntax and packages in R to apply both common and more advanced transformations and scaling procedures.
+3. Learn how to reverse transformations and scaling to obtain estimates and predictions in the original units of measure.
+4. Learn how to change the scales on the plot axes and label them appropriately.
+5. Learn how to apply these concepts to real problems in ecology and environmental sciences involving data through worked examples.
 
 # Steps:
-1. [Introduction](#intro)
-2. [**Part I: Data Distributions**](#base)
-  - [Terminology](#Terminology)
-  - [Gaussian (Normal) Distribution](#Gaussian)
-  - [Binomial Distribution](#Binomial)
-  - [Other types](#other)
-3. [**Part II: Transformations**](#Transformations)
+1. [**Introduction**](#intro)
+  - [Prerequisites](#Prerequisites)
+2. [**Part I: Transformations**](#Transformations)
   - [`log` transformation](#log)
   - [Square root `sqrt` transformation](#sqrt)
   - [Box-Cox transformation using `boxcox()`](#bc)
-  - [Linear modelling using transformed data](#trans_lin)
-4. [**Part III: Scaling**](#Scaling)
+  - [Building models using transformed data and reverting transformations](#trans_lin)
+3. [**Part II: Scaling**](#Scaling)
   - [Standardization](#Standardization)
   - [Normalization](#Normalization)
-  - [Using `caret` package for scaling and transforming data](#caret)
-5. [Scaling for Data Visualization](#datavis_scaling)
-4. [Summary](#Summary)
-5. [Challenge](#Challenge)
+4. [**Part III: Scaling for Data Visualization**](#datavis_scaling)
+5. [**Summary**](#Summary)
+6. [**Challenge**](#Challenge)
 
 # 1. Introduction
 {: #intro}
 
 Data come in a wide variety of shapes and sizes. We use data distributions to study and understand the data. Many models are build around assumptions that the data follows a certain distribution, most typically linear models always assume **normal** distribution of the data.
+
 However, real world data rarely follow perfect normal distribution and therefore break this assumption. For dealing with these issues we can use **transformations** and **scaling** to momentarily alter the data in order to satisfy these assumptions. They are therefore powerful tools for allowing us to utilize a wide variety of data that would not be available for modelling otherwise.
 
-This tutorial will show you how to work with data distributions and what types of distributions you are likely to encounter when exploring ecological and environmental data. Then, we will explore common transformations and scaling procedures you might use in order to modify distributions of the data through real world examples.
+This tutorial will show you how to work with data distributions using common transformations and scaling procedures you might to modify distributions of the data through real world examples.
 
 ## Prerequisites
+{: #Prerequisites}
+
 This tutorial is suitable for novices and intermediate learners in statistical analysis and depending on your level you should pick and choose which parts of tutorial are useful for you, for example a beginner might learn basic transformations such as logarithmic and square-root transformations while intermediate learner will extend these concepts by learning about Box-Cox transformation. However, to get most out of this tutorial you should have a basic knowledge of descriptive statistics and linear models. Knowledge of high school algebra (functions, equation manipulation) will enhance the understanding of the concepts.  
 
 While we will use programming language `R` throughout the tutorial the concepts you will learn here are applicable in other programming languages as well! To fully appreciate the code in this tutorial you should have at least a basic knowledge of data manipulation using `dplyr`, `tidyr` and visualising data using `ggplot2`. If you are new to R or need to refresh your memory there are great resources available on the Coding Club website:
@@ -53,82 +51,17 @@ While we will use programming language `R` throughout the tutorial the concepts 
 
 Now we are ready to dive into the world of data distributions, transformations and scaling!
 
-# I. Data Distributions
+# 2. Part I: Data Transformations
+{: #Transformations}
 
-## Terminology
-A data distribution shows all the possible values or intervals of the data. It helps us to determine which values are the most common in the dataset and how spread out the values are.
-
-### Visualizing data distributions
-We can use two types of plots to visualise data distributions (1) histograms and (2) density plots (also called kernel density functions). Below is a code showing how to plot each of these using an artificial dataset in R.
-
-Make sure that you include the header at the beginning of your script with the description of the script, your name and contact details and the dates you worked on the script. If you would like to found out more about a proper coding etiquette you can have a look at a tutorial [here](https://ourcodingclub.github.io/tutorials/etiquette/).
-
-
-As the `sample()` functions contains a random element (the numbers sampled are different each time we use it based on chance) we use `set.seed()`. This functions ensures that each time `set.seed()` with the same number (e.g. `set.seed(1)` but the number is arbitrary, you can use any number as long as you do not change it, 1 is my favourite number) is run before the sample generation the result will be the same.
+In the following parts we will work with the data from the Living Planet Index which is an open-source database containing population data of a large number of species from all around the globe. Let's load it into our script along with the libraries we will use in this part of the tutorial. If you do not have some of these packages installed, use `install.packages('package_name')` to install them now and then load them.
 
 ```r
 # Coding Club Tutorial - Data distributions, transformations and scaling
 # Matus Seci, matusseci@gmail.com
 # 29/11/2021
 
-# I. Data distributions ----
-
-# Visualizing data dsitributions
-
-# Set seed
-set.seed(1)
-
-# Generate a random sample
-rand_sample <- sample(x = seq(1, 25, 0.25), size = 100, replace = TRUE)
-
-# (1) Plot a histogram
-hist(rand_sample,
-     breaks = 10,
-     xlab = 'Values',
-     ylab = 'Frequency',
-     main = 'Data distribution of a random sample')
-
-# (2) Plot a density function
-plot(density(rand_sample),
-     xlab = 'Values',
-     ylab = 'Frequency',
-     main = 'Data distribution of a random sample')
-```
-
-As we can see a histogram uses **bins** to group values together and provides a coarser description of the data distribution. On the other hand, a density plots smooths out the transitions between values and produces a continuous **curve**. This can be advantageous when we want a very precise distribution of continuous data, however, if our dataset contains few values the density curve can look slightly biased. Therefore, you should be careful when using density plots.
-
-As an alternative to the base R code we can use `ggplot2` functions `geom_histogram()` and `geom_density()` to visualize data distributions.
-
-```r
-library(ggplot2)
-
-
-
-```
-
-### Skewness
-Skewness of data distributions describes a situation when a data distribution has its mean value different from its median.
-
-![alt text]('https://github.com/EdDataScienceEES/tutorial-matusseci/blob/master/figures/skewness.png')
-
-Positive skew is also called **right-skewed** and negative skew is also called **left-skewed**. This terminology is a source of endless confusion as for some people it is rather counterintuitive.
-
-With skewed data we can sometimes talk about **zero-inflation**. This term refers to the fact that our dataset contains an unusually high number of zero values. There are several ways to deal with this issue, for example using transformations as we will see later.
-
-
-### Kurtosis
-Kurtosis describes the 'tailedness' of the data distribution.
-
-![alt text]('https://github.com/EdDataScienceEES/tutorial-matusseci/blob/master/figures/kurtosis.jpeg')
-
-A **mesokurtic** distribution is a distribution which has data spread in the same way as a **normal** distribution. A **leptokurtic** distribution has 'fatter tails' meaning that the extreme values occur more frequently than in a normal distribution. A **platykurtic** distribution has 'thinner tails' and therefore produces fewer extreme values. It is very important to note that the extreme values mentioned above should be considered in reference to the rest of the distribution and not other distributions.
-
-# II. Data Transformations
-
-In the following parts we will work with the data from the Living Planet Index which is an open-source database containing population data of a large number of species from all around the globe. Let's load it into our script along with the libraries we will use in this part of the tutorial. If you do not have some of these packages installed, use `install.packages('package_name')` to install them now and then load them.
-
-```r
-library(tidyverse)  # contains dplyr (data manipulation) and other useful packages
+library(tidyverse)  # contains dplyr (data manipulation), ggplot2 (data visualization) and other useful packages
 library(cowplot)  # making effective plot grids
 library(MASS)  # contains boxcox() function
 library(ggeffects)  # model predictions
@@ -173,6 +106,7 @@ We can see that our data are very skewed with most of the values occuring being 
 **NOTE** Observant learners will notice that we are dealing here with **count data** and therefore we could model this dataset using **generalized linear model** with **Poisson distribution**. This would be a perfectly correct approach, however, for the sake if this tutorial we will stick with a linear model to demonstrate how we can use transformations to model even non-normally distributed data.
 
 ## Logarithmic transformation
+{: #log}
 
 As we can see our data are right-skewed. We can also plot a simple scatter plot to see that a distribution like this would not be very well described by a straight line but rather an **exponential function**.
 
@@ -189,7 +123,7 @@ As we can see our data are right-skewed. We can also plot a simple scatter plot 
 ```
 <center> <img src="{{ site.baseurl }}/stork_scatter.png" alt="Img" style="width: 800px;"/> </center>!
 
-This means that we need to apply a **logarithmic transformation** which will **linearize** the data and we will be able to fit linear model. Luckily, this procedure is very simple in R using a base R function `log()`. Together with `mutate()` function we can create a new column with the transformed data so that we do not overwrite the original data in case we want to use them later.
+This means that we need to apply a **logarithmic transformation** which will **linearize** the data and we will be able to fit linear model. Luckily, this procedure is very simple in R using a base R function `log()` which by default uses **natural logarithm**, i.e. logarithm with base e (Euler's number). Together with `mutate()` function we can create a new column with the transformed data so that we do not overwrite the original data in case we want to use them later.
 
 ```r
 # Log transform the data
@@ -233,6 +167,8 @@ Now this look much closer to the normal distribution than the previous histogram
 Our data look quite normally distributed now but we might think that a **weaker** transformation could result in a data more centered than what we have now.
 
 ## Square-root transformation
+{: #sqrt}
+
 **Square root transformation** looks works in a very similar way as logarithmic transformation and is used in similar situations (right-skewed data), however, it is a **weaker** transformation. What do we mean by weaker? Well, to answer this question it is a good idea to look at the graphs of these mathematical functions.
 
 <center> <img src="{{ site.baseurl }}/log_sqrt_func.png" alt="Img" style="width: 800px;"/> </center>!
@@ -255,14 +191,16 @@ stork <- stork %>%
     plot_theme())
 ```   
 
-<center> <img src="{{ site.baseurl }}/stork_hist_sqrt.png" alt="Img" style="width: 800px;"/> </center>!
+<center> <img src="{{ site.baseurl }}/stork_hist_sqrt.png" alt="Img" style="width: 800px;"/> </center>
 
 This does not look bad but the data are still quite skewed. This probably means that out of the three options we have seen the most normal looking distribution would be achieved with the log transformation. While it would be completely alright to use log transformed data we will extend this a bit more and introduce a more advanced concept called **Box-Cox transformation**.
 
-### Box-Cox Transformation
+## Box-Cox Transformation
+{: #bc}
+
 Box-Cox transformation is a stiatistical procedure developed by Geoerge Box and Sir David Roxbee Cox for transforming non-normally distributed data into a normal distribution. The transformation is not as straightforward as logarithmic or square-root transformations and requires a bit more explanation. We will start by giving out an equation that describes the transformation (do not worry if you do not understand the equation, it is not essential).
 
-**INSERT equation**
+<center> <img src="{{ site.baseurl }}/boxcox_formula.png" alt="Img" style="width: 800px;"/> </center>
 
 We can see that the transformation is determined by a parameter **lambda** and **if lambda is 0 the transformation is simply log transformation**. Essentially, Box-Cox transformation uses the above equation and different lambda values to test different strengths of transformations and determines at which lambda value the distribution is most normal. It is therefore much more **precise** then just comparing sqrt and log transformations - it tries out many more options! The animation below demonstrates how the different lambda values change the results of transformation.
 
@@ -279,7 +217,7 @@ bc <- boxcox(stork.mod)
 ```
 After you run the `boxcox` command a plot like the one below should show up in your plot console.
 
-**insert boxcoxplot**
+<center> <img src="{{ site.baseurl }}/boxcox_plot.png" alt="Img" style="width: 800px;"/> </center>
 
 The plot shows the optimal value of the lambda parameter. We can see that for our data it is somewhere around 0.1. To extract the exact optimal value we can use the code below.
 
@@ -312,14 +250,17 @@ Before proceeding to model the data we can visually appreciate the differences b
 
 ```r
 # Panel of histograms for different transformations
-(stork_dist <- plot_grid(stork_hist + labs(title = 'Original data'),  # original data  
+(stork_dist_panel <- plot_grid(stork_hist + labs(title = 'Original data'),  # original data  
                         stork_log_hist + labs(title = 'Log transformation'),  # logarithmic transformation
                         stork_hist_sqrt + labs(title = 'Square-root transformation'),  # square-root transformation
                         stork_hist_bc + labs(title = 'Box-Cox transformation'),  # Box-Cox transformation
                         nrow = 2,  # number of row in the panel
                         ncol = 2))  # number of columns in the panel
 ```
-## Building models using transformed data and backtransformations
+<center> <img src="{{ site.baseurl }}/stork_dist_panel.png" alt="Img" style="width: 800px;"/> </center>
+
+## Building models using transformed data and reverting transformations
+{: #trans_lin}
 
 We will now continue to build a model using the transformed data and answer our research question. We will use the Box-Cox transformed data but feel free to use the log transformed data if you want to keep things more simple!
 
@@ -330,7 +271,22 @@ stork.bc.mod <- lm(bcpop ~ year, data = stork)
 # Show the summary of the model outputs
 summary(stork.bc.mod)
 ```
-**insert the summary screenshot here**
+<table style="text-align:center"><tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td><em>Dependent variable:</em></td></tr>
+<tr><td></td><td colspan="1" style="border-bottom: 1px solid black"></td></tr>
+<tr><td style="text-align:left"></td><td>bcpop</td></tr>
+<tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">year</td><td>0.041<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.006)</td></tr>
+<tr><td style="text-align:left"></td><td></td></tr>
+<tr><td style="text-align:left">Constant</td><td>-76.837<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(12.291)</td></tr>
+<tr><td style="text-align:left"></td><td></td></tr>
+<tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Observations</td><td>547</td></tr>
+<tr><td style="text-align:left">R<sup>2</sup></td><td>0.073</td></tr>
+<tr><td style="text-align:left">Adjusted R<sup>2</sup></td><td>0.072</td></tr>
+<tr><td style="text-align:left">Residual Std. Error</td><td>1.221 (df = 545)</td></tr>
+<tr><td style="text-align:left">F Statistic</td><td>43.116<sup>***</sup> (df = 1; 545)</td></tr>
+<tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td style="text-align:right"><sup>*</sup>p<0.1; <sup>**</sup>p<0.05; <sup>***</sup>p<0.01</td></tr>
+</table>
 
 We can see that the our results are highly significant with the effect size of 0.04 and standard error of 0.006. But what exactly does this mean? Since we have transformed our data we are getting the estimate (effect size) and standard error on the transformed scale, not on the original scale! This might be quite confusing when we present our results. We will therefore **back-transform** our data into the original scale but before that let's have a quick look at the model assumption of normality to see how well our transformed data did compared with the model that would use the original data. We will use so called Q-Q plots for this. If the data are normally distributed, the points in the Q-Q plot should lie on the line.
 
@@ -350,7 +306,7 @@ qqline(stork.bc.mod$residuals)
 par(mfrow = c(1, 1))
 ```
 
-**insert the qqplots**
+<center> <img src="{{ site.baseurl }}/qq_plots.png" alt="Img" style="width: 800px;"/> </center>
 
 We can see that while the transformed data are not perfectly aligned with the line, they deviate much less than the original data. We can therefore conclude that the transformed data are a good fit for the normality assumption. We can move to the backtransformations now.
 
@@ -412,13 +368,16 @@ We can see that the prediction line is not straight but is more of a curve which
 
 This is the end of the first part of the tutorial. You should now be comfortable using transformations to convert non-normal data into a normal shape, use them in a model and then reverse the transformation to present results in the original units. Next we will look at a different type of data manipulation - scaling.
 
-# II. Scaling
+# 3. Part II: Scaling
+{: #Scaling}
 
 Scaling describes a set of procedures used to adjust the distribution of the data, particularly its **range** through **linear transformation**. Linear transformation in this context means that it uses only basic arithmetic operations (addition, subtraction, multiplication, division) and not exponentiating or logarithms. You might now ask the question, in what situations we would not use transformations like log and sqrt but use scaling? Imagine that you have a dataset of species abundance measurements where some data were obtained by counts (units = individuals) and others using a population index (no units). The former might be in a range of 1000s while the other will have value from 0 - 1! Is it possible to directly compare the two? Of course not. This is where scaling comes in. It allows us to put two variables on **the same scale** and thus make them **comparable**.  In this tutorial we will cover the two most common types of scaling: **standardization** and **normalization**.   
 
 <center> <img src="{{ site.baseurl }}/scaling_demo.png" alt="Img" style="width: 800px;"/> </center>!
 
 ## Standardization
+{: #Standardization}
+
 As in the case of transformation we will work with a dataset from Living Planet Index. This time we will use population data on the atlantic salmon (__Salmo salar__) but unlike in the previous case we will keep all the observations. We will answer a similar question to the one in the previous example: Did the population of the atlantic salmon decrease over time? Let's extract the data from the main dataset and look at the `units` variable to see what units the population measurements are in.
 
 ```r
@@ -458,7 +417,7 @@ We can see that the individual populations have different distributions but many
 
 **Standardization** is a scaling procedure during which we **subtract the mean from the original data and divide them by standard deviation**. It is especially useful for data which are already normally distributed, in fact, the name of the procedure derives from a term **standard normal**. Normal distribution is defined by its **mean** and **standard deviation** which means that given these two parameters you can draw the exact curve describing the distribution (this fact alone makes it so popular, it is really easy to measure these two properties). **Standard normal** refers to a normal distribution with mean = 0 and standard deviation = 1. So when we apply the procedure to our data we should get a roughly normal distribution centered at 0 with standard looking tails.
 
-You might ask why this procedure would not work for other distributions. Well, the main issue here is that other distributions such as Poisson, binomial or exponential are not well described by their mean and standard deviation. This is stemming from the **assymetry** of these distributions. Look at the animation below to see what would happen if we applied standardization to binomial data. As you can see we do not achieve the desired result which would be center on 0 and standard deviation of 1.
+You might ask why this procedure would not work for other distributions. Well, the main issue here is that other distributions such as Poisson, binomial or exponential are not well described by their mean and standard deviation. This is stemming from the **asymmetry** of these distributions. Look at the animation below to see what would happen if we applied standardization to binomial data. As you can see we do not achieve the desired result which would be center on 0 and standard deviation of 1.
 
 
 **insert animation**
@@ -520,6 +479,7 @@ The data in the `pop_scaled_rev` column should match the data in the `pop` colum
 There is one imporatant issue to consider when working with scaled data but presenting the unscaled version. We can notice in our histograms above that in the original data we have most of the data with a very small value and then some outliers which have very large values. This can create a major issue when presenting the data, in particular it will make y-axis scale very high and squish all the small value data points on the x-axis. While this technically correct the visualization then would not correctly convey the message which is the trend that we have detected. In situations like this it is safet to simply present the scaled data instead of reversing the scaling and **explain in the text of your report the reason why you did this**. It might be more difficult to understand the meaning of the effect size/slope since it will not have any meaningful units but the prediction plot will be much more clear and interpretable.  
 
 # Normalization
+{: #Normalization}
 
 **Normalization** is another scaling procedure but unlike **standaridzation** it can be used for any distribution. In fact, it is important to understand that the goals of these two procedures are different. Standardization aims to convert any normal distribution into a standard normal but the goal of normalization is to **rescale the data into a set range of values**. It is defined as **subtracting minimum value and dividing by the range of the original variable**. Using this procedure on a set of data which contains only **non-negative values** will result in a **range of [0, 1]** and if there are **negative values** the range will be **[-1, 1]**. The most imporatnt property of this scaling procedure is that it **does not change the relative distances between individual data points and so should not significantly alter the data distribution**.
 
@@ -576,6 +536,72 @@ This is much neater than the previous procedure. You can explore the other trans
 
 As you can see the shapes of the histograms have not changed which is what we would expect. However, if you look at the x-axis there is a clear change in the scale which is exactly what we wanted to achieve.
 
-After this your data would be ready to be crunched through an algorithm of your choice. We will not follow through with that in this tutorial as it would require explaining a lot of concept not directly related to scaling and transformation. Instead we will move on to the last part which will explain how to effectively change the scale on your plots without the need to change the variables themselves.
+After this your data would be ready to be crunched through an algorithm of your choice. We will not follow through with that in this tutorial as it would require explaining a lot of concept not directly related to scaling and transformation. Instead, we will move on to the last part which will explain how to effectively change the scale on your plots without the need to change the variables themselves.
 
 **NOTE** There are many other scaling procedures which can be useful in different situations. You can explore these on this Wikipedia page or here.
+
+# 4. Part III: Scaling for Data Visualization
+{: #datavis_scaling}
+
+Modelling data is not always our end goal. Sometimes we only want to present the dataset we have through creating beautiful and effective data visualization. In that case, it can be impractical to go through the process of converting the variables into different scales or transforming them. Instead, we can simply change the scale on the final plot.
+
+This functionality is implemented within ``ggplot2`` and extend by the `scales` package. It offers a series of functions for effectively modifying the labels and breaks to fit the scale used and even let's us define our own axis scale transformation which is not part of ggplot2. Let's try out this functionality.
+
+We will work with yet another species from the Living Planet Index database - the leatherback turtle (__Dermochelys coriacea__).
+
+```r
+# Import packages
+library(scales)
+
+# Extract the data for the leatherback turtle from the LPI dataset
+turtle <- LPI_species %>%
+  filter(Common.Name == 'Leatherback turtle') %>%
+  mutate(year = parse_number(as.character(year)))
+
+# Look at the dataset
+str(turtle)
+summary(turtle)
+```
+Closely inspecting the dataset we find out that the units used to describe the population of the turtles are essentially either nesting female counts or nest counts. We will assume that these represent the same phenomenon and therefore can be combined to be a good proxy for population abundance. In this part our goal is just to create a nice visualization showing the population counts, not fully model the trend.
+
+```r
+# Plot a scatter plot of the turtle data
+(turtle_scatter <- ggplot(data = turtle) +
+    geom_point(aes(x = year, y = pop),  # change to geom_point() for scatter plot
+                   alpha = 0.9,
+                   color = '#ff4040') +
+    labs(x = 'Year',
+         y = 'Population Abundance',
+         title = 'Population abundance of the leatherback turtle') +
+    plot_theme())  # apply the custom theme
+
+```
+
+<center> <img src="{{ site.baseurl }}/turtle_scatter.png" alt="Img" style="width: 800px;"/> </center>
+
+We see that a lot of data is pushed to the x-axis is there are big differences between individual data points. From the previous parts of the tutorial we know that in this case a logarithmic transformation may help. Since we only want to change the axis scale we will add `scale_y_log10` and the argument `scales::label_number()` which will create labels with the actual non-logarithmic values.
+
+```r
+# Change the scale
+(turtle_scatter_log <- ggplot(data = turtle) +
+    geom_point(aes(x = year, y = pop),  # change to geom_point() for scatter plot
+                   alpha = 0.9,
+                   color = '#ff4040') +
+    labs(x = 'Year',
+         y = 'Population Abundance',
+         title = 'Population abundance of the leatherback turtle') +
+    scale_y_log10(labels = scales::label_number()) +  # line changes the scale on the y-axis and creates nice labels
+    plot_theme())  # apply the custom theme
+```
+
+<center> <img src="{{ site.baseurl }}/turtle_scatter_log.png" alt="Img" style="width: 800px;"/> </center>
+
+Now we can see all the data points with correct y-axis labels for the log transformed scale and we did all this in one line of extra code.
+
+# 5. Summary
+{: #Summary}
+
+Congratulations, you made it to the end of the tutorial. Working with data can often be a daunting and complicated task, particularly when your data does not fit into any of the common data distribution types. However, now you are equipped with a range of tools to make adjustments and allow you to visualize and model all sorts of messy datasets. We started with non-linear transformations and learned how to use log, sqrt and Box-Cox transformations and reverse these transformations, then we explored how scaling can be used by exploring standardization and normalization and finally we introduced a simple way to change scales of plot axes and easily adjust labels to fix the scales.   
+
+# 6. Challenge
+{: #Challenge}
