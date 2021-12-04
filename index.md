@@ -1,7 +1,7 @@
 ---
 theme: jekyll-theme-cayman
-title: Data distributions, transformations and scaling
-subtitle: Understand fundamental concepts of understanding and preparing data for modelling
+title: Transforming and scaling data
+subtitle: Understand the fundamental concepts of manipulating data distributions for modelling and visualization
 date: 28/11/2021
 author: Matus Seci
 ---
@@ -32,32 +32,39 @@ author: Matus Seci
 # 1. Introduction
 {: #intro}
 
-Data come in a wide variety of shapes and sizes. We use data distributions to study and understand the data. Many models are build around assumptions that the data follows a certain distribution, most typically linear models always assume **normal** distribution of the data.
+Data come in a wide variety of shapes and sizes. We use data distributions to study and understand the data and many models are build around assumptions that the data follow a certain distribution, most typically linear models always assume **normal** distribution of the data. However, real world data rarely perfectly align with the normal distribution and therefore break this assumption. Alternatively, there might be a situation where our data follow a non linear relationship an our standard plots cannot capture it very well. For dealing with these issues we can use **transformations** and **scaling**. They are therefore powerful tools for allowing us to utilize a wide variety of data that would not be available for modelling otherwise and display non-linear relationships between data in more clear and interpretable plots.
 
-However, real world data rarely follow perfect normal distribution and therefore break this assumption. For dealing with these issues we can use **transformations** and **scaling** to momentarily alter the data in order to satisfy these assumptions. They are therefore powerful tools for allowing us to utilize a wide variety of data that would not be available for modelling otherwise.
-
-This tutorial will show you how to work with data distributions using common transformations and scaling procedures you might to modify distributions of the data through real world examples.
+This tutorial will teach you how to manipulate data using both common and more advanced transformations and scaling procedures in R. In addition, we will have a quick look at situations when adjusting scales on plot axes is a better decision than transforming or scaling data themselves. Throughout the tutorial we will work with datasets from ecological and environmental sciences in order to demonstrate that scaling data and using transformations are very useful tools when working with real world data.  
 
 ## Prerequisites
 {: #Prerequisites}
 
-This tutorial is suitable for novices and intermediate learners in statistical analysis and depending on your level you should pick and choose which parts of tutorial are useful for you, for example a beginner might learn basic transformations such as logarithmic and square-root transformations while intermediate learner will extend these concepts by learning about Box-Cox transformation. However, to get most out of this tutorial you should have a basic knowledge of descriptive statistics and linear models. Knowledge of high school algebra (functions, equation manipulation) will enhance the understanding of the concepts.  
+This tutorial is suitable for novices and intermediate learners in statistical analysis and depending on your level you should pick and choose which parts of tutorial are useful for you, for example a beginner might learn basic transformations such as logarithmic and square-root transformations while an intermediate learner will extend these concepts by learning about the Box-Cox transformation. However, to get most out of this tutorial you should have a basic knowledge of descriptive statistics and linear models. Knowledge of high school algebra (functions, equation manipulation) will enhance the understanding of the underlying mathematical concepts.  
 
-While we will use programming language `R` throughout the tutorial the concepts you will learn here are applicable in other programming languages as well! To fully appreciate the code in this tutorial you should have at least a basic knowledge of data manipulation using `dplyr`, `tidyr` and visualising data using `ggplot2`. If you are new to R or need to refresh your memory there are great resources available on the Coding Club website:
+While we will use programming language `R` throughout the tutorial, the concepts you will learn here are applicable in other programming languages as well! To fully appreciate the code in this tutorial you should have at least a basic knowledge of data manipulation using `dplyr`, `tidyr` and visualising data using `ggplot2`. If you are new to R or need to refresh your memory there are great resources available on the Coding Club website:
 - [Intro to R](https://ourcodingclub.github.io/tutorials/intro-to-r/)   
 - [Basic Data Manipulation](https://ourcodingclub.github.io/tutorials/data-manip-intro/)
 - [Data Visualization](https://ourcodingclub.github.io/tutorials/datavis/)
 
+## Data and Materials
 
-Now we are ready to dive into the world of data distributions, transformations and scaling!
+You can find all the data that you require for completing this tutorial on this [GitHub repository](INSET LINK). We encourage you to download the data to your computer and work through the examples along the tutorial as this reinforces your thinking and understanding of the concepts taught here.
+
+
+
+Now we are ready to dive into the world of transformations and scaling!
 
 # 2. Part I: Data Transformations
 {: #Transformations}
 
-In the following parts we will work with the data from the Living Planet Index which is an open-source database containing population data of a large number of species from all around the globe. Let's load it into our script along with the libraries we will use in this part of the tutorial. If you do not have some of these packages installed, use `install.packages('package_name')` to install them now and then load them.
+Data tranformations represent procedure where a mathematical function is equally applied to all points in the dataset. In this tutorial, we will condier transformations to be mainly describign the situation where the mathematical function we apply is **non-linear**, i.e. the effect of applying the function to a point with a low value is not equal to the effect of applying the function to a point with a large value. As we mentioned in the introduction, probably the main reason to use data transformations is to adjust data distribution to fit into the assumptions of a model we want to use. Since explaining statistical concepts is always easier with examples, let's jump straight into it!
+
+To start off, open a new R script in RStudio and write down a header with the title of the script (e.g. the tutorial name), your name and contact details and the last date you worked on the script.
+
+In the following parts we will work with the data from the [Living Planet Index](https://livingplanetindex.org/home/index) which is an open-source database containing population data of a large number of species from all around the planet. In each part of the tutorial we will focus on a population of a different species. Let's load it into our script along with the packages we will use in this part of the tutorial. If you do not have some of these packages installed, use `install.packages('package_name')` to install them now and then load them.
 
 ```r
-# Coding Club Tutorial - Data distributions, transformations and scaling
+# Coding Club Tutorial - Transforming and scaling data
 # Matus Seci, matusseci@gmail.com
 # 29/11/2021
 
@@ -75,35 +82,87 @@ Now we can look at the basic structure of the dataframe to get some idea of the 
 str(LPI_species)
 summary(LPI_species)
 ```
-We can see that the dataset contains information about 31 species. In this part we will look at the population data of the white stork (__Ciconia ciconia__) sampled using the **direct counts** method. We use `dplyr` function `filter()` to extract these data and adjust the year variable to be a numeric variable using `mutate()` and `parse_number()`.
+We can see that the dataset contains information about 31 species. In this part we will look at the population data of the white stork (__Ciconia ciconia__) sampled using the **direct counts** method. In particular we will attempt to answer the following research question:
+
+**How has the population of the white stork changed over time?**
+
+Throughout the tutorial we will use so called 'pipe' operator (`%>%`) which allows us to connect multiple functions from `tidyverse` libraries in order to make our code more efficient and streamlined. If you are unfamiliar with this concept you can learn more about it in this tutorial on [advanced data manipulation in R](https://ourcodingclub.github.io/tutorials/data-manip-efficient/). We use `dplyr` function `filter()` to extract the white stork data and adjust the year variable to be a numeric variable using `mutate()` and `parse_number()`.
 
 ```r
-# Extract the white stork data from the main dataset
+# Extract the white stork data from the main dataset and adjust the year variable
 stork <- LPI_species %>%
   filter(Common.Name == 'White stork' & Sampling.method == 'Direct counts')%>%
   mutate(year = parse_number(as.character(year))  # convert the year column to character and then parse the numeric part
 ```
 
-In particular we will attempt to answer the following research question: Has the population of the white stork decreased over time?
-
-Let's look at the distribution of the data to get some feeling of what the data look like and what model we could use to answer this question.
+We will use `ggplot2` library for most of our visualizations. However, before we make the first and explore the data we will define a custom theme to give our plots a better look and save time not having to repeat code. **This part is completely voluntary as it does not affect the main concepts presented, you can create your own theme if you want or even use some of the pre-built themes in ggplot2 such as `theme_bw()` or `theme_classic()`.**
 
 ```r
+# Define a custom plot theme
+
+plot_theme <- function(...){
+  theme_bw() +
+  theme(
+    # adjust axes
+    axis.line = element_blank(),
+    axis.text = element_text(size = 14,
+                             color = "black"),
+    axis.text.x = element_text(margin = margin(5, b = 10)),
+    axis.title = element_text(size = 14,
+                              color = 'black'),
+    axis.ticks = element_blank(),
+
+    # add a subtle grid
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "#dbdbd9", size = 0.2),
+
+    # adjust background colors
+    plot.background = element_rect(fill = "white",
+                                   color = NA),
+    panel.background = element_rect(fill = "white",
+                                    color = NA),
+    legend.background = element_rect(fill = NA,
+                                     color = NA),
+    # adjust titles
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14, hjust = 0,
+                               color = "black"),
+    plot.title = element_text(size = 20,
+                              color = 'black',
+                              margin = margin(10, 10, 10, 10),
+                              hjust = 0.5),
+
+    plot.subtitle = element_text(size = 10, hjust = 0.5,
+                                 color = "black",
+                                 margin = margin(0, 0, 30, 0))
+    )
+
+}
+
+
+```
+
+Now we are ready to make some beautiful plots. Let's look at the distribution of the data to get some idea of what the data look like and what model we could use to answer our research question.
+
+```r
+# Remember, if you put the whole code in the brackets it will
+# display in the plot viewer right away!
+
 # Look at the distribution of the data
 (stork_hist <- ggplot(data = stork) +
     geom_histogram(aes(x = pop),
                    alpha = 0.9,
-                   fill = 'blue') +
+                   fill = '#18a1db') +  # fill the histogram with a nice colour
     labs(x = 'Value',
-         y = 'Density') +
-    plot_theme() +
-    theme(legend.position = 'none'))
+         y = 'Density',
+         title = 'Distribution of the white stork population data') +
+    plot_theme())  # apply the custom theme
 ```
 <center> <img src="{{ site.baseurl }}/stork_hist.png" alt="Img" style="width: 800px;"/> </center>!
 
-We can see that our data are very skewed with most of the values occuring being small. This data distribution is far from normal and therefore we cannot use them directly if we want to use a linear model as it assumes normal distribution of data. This is where transformations come in!
+We can see that our data are very skewed with most of the values being relatively small. This data distribution is far from normal and therefore we cannot use data directly for modelling with linear models which assume normal distribution. This is where transformations come in!
 
-**NOTE** Observant learners will notice that we are dealing here with **count data** and therefore we could model this dataset using **generalized linear model** with **Poisson distribution**. This would be a perfectly correct approach, however, for the sake if this tutorial we will stick with a linear model to demonstrate how we can use transformations to model even non-normally distributed data.
+**NOTE** Observant learners will notice that we are dealing here with **count data** and therefore we could model this dataset using **generalized linear model** with **Poisson distribution**. This would be a perfectly correct approach, however, for the sake of this tutorial we will stick with a linear model to demonstrate how we can use transformations to model even non-normally distributed data.
 
 ## Logarithmic transformation
 {: #log}
@@ -123,7 +182,7 @@ As we can see our data are right-skewed. We can also plot a simple scatter plot 
 ```
 <center> <img src="{{ site.baseurl }}/stork_scatter.png" alt="Img" style="width: 800px;"/> </center>!
 
-This means that we need to apply a **logarithmic transformation** which will **linearize** the data and we will be able to fit linear model. Luckily, this procedure is very simple in R using a base R function `log()` which by default uses **natural logarithm**, i.e. logarithm with base e (Euler's number). Together with `mutate()` function we can create a new column with the transformed data so that we do not overwrite the original data in case we want to use them later.
+This means that we need to apply a **logarithmic transformation** which will **linearize** the data and we will be able to fit linear model. Luckily, this procedure is very simple in R using a base R function `log()` which by default uses **natural logarithm**, i.e. logarithm with base e (Euler's number). The choice of the base for a logarithm is somehow arbitrary but it relates to the 'strength of transformation' which we will cover a bit later in the tutorial. If you wanted to use logarithm with a different base you could either define it in the funcion call like this `log(x, base = 10)` or for some common types use pre-built functions (e.g. `log10(x)` or `log2(x)`). Together with `mutate()` function we can create a new column with the transformed data so that we do not overwrite the original data in case we want to use them later.
 
 ```r
 # Log transform the data
@@ -136,7 +195,7 @@ stork <- stork %>%
                    alpha = 0.9,
                    color = '#18a1db') +
     labs(x = 'Year',
-         y = 'Population Abundance',
+         y = 'Population Abundance (log transformed data)',
          title = 'Population abundance of white stork') +
     plot_theme())  # apply the custom theme
 ```   
@@ -162,20 +221,21 @@ Now this look much closer to the normal distribution than the previous histogram
 
 **INSERT ANIMATION**
 
-**NOTE** Log transformations are often used to transform right-skewed data, however, the transformation has a major shortcoming which is that it only works for **positive non-zero** data. This is due to the mathematical properties of the logarithmic function. If you find out that your data have a 0 values but you would still like to use log transformation you can use **add a constant** to the variable before performing the transformation, for example log(x + 1) where x is the variable. This way you can get rid of the negative or zero values. However, you should still use this method with caution as adding a constant changes the properties of the logartihm a bit.
+**NOTE** Log transformations are often used to transform right-skewed data, however, the transformation has a major shortcoming which is that it only works for **positive non-zero** data. This is due to the mathematical properties of the logarithmic function. If you find out that your data have a 0 values but you would still like to use log transformation you can **add a constant** to the variable before performing the transformation, for example log(x + 1) where x is the variable. This way you can get rid of the negative or zero values. You can do this either manually or using `log1p()` function. However, you should still use this method with caution as adding a constant changes the properties of the logartihm and it might not transform the data in a desirable way.
 
-Our data look quite normally distributed now but we might think that a **weaker** transformation could result in a data more centered than what we have now.
+Our data look quite normally distributed now but we might think that a **weaker** transformation could result in a data more centered than what we have now. We will therefore try to apply such a transformation - square-root transformation.
 
 ## Square-root transformation
 {: #sqrt}
 
-**Square root transformation** looks works in a very similar way as logarithmic transformation and is used in similar situations (right-skewed data), however, it is a **weaker** transformation. What do we mean by weaker? Well, to answer this question it is a good idea to look at the graphs of these mathematical functions.
+**Square root transformation** works in a very similar way as logarithmic transformation and is used in similar situations (right-skewed data), however, it is a **weaker** transformation. What do we mean by weaker? Well, to answer this question it is a good idea to look at the graphs describing these mathematical functions.
 
 <center> <img src="{{ site.baseurl }}/log_sqrt_func.png" alt="Img" style="width: 800px;"/> </center>!
 
-As you can see the logarithmic function levels off much more quickly which means that it squishes large values much more strongly than square-root. As a result, with log transformation extreme values in the dataset will not have as strong an effect. The plots also indicate that square-root transformation has the same disadvantage as log transformation - it can only be used on positive non-zero data.
+As you can see the logarithmic function levels off much more quickly which means that it constrains large values much more strongly than square-root. As a result, with log transformation extreme values in the dataset will not have as strong an effect on the resultant distribution. The plots also indicate that square-root transformation has the same disadvantage as log transformation - it can only be used on positive non-zero data.
 
 Similar to the log transformation, we can use `sqrt()` function in base R to make this transformation.
+
 ```r
 # Create a square-root transformed column
 stork <- stork %>%
@@ -193,20 +253,20 @@ stork <- stork %>%
 
 <center> <img src="{{ site.baseurl }}/stork_hist_sqrt.png" alt="Img" style="width: 800px;"/> </center>
 
-This does not look bad but the data are still quite skewed. This probably means that out of the three options we have seen the most normal looking distribution would be achieved with the log transformation. While it would be completely alright to use log transformed data we will extend this a bit more and introduce a more advanced concept called **Box-Cox transformation**.
+This does not look bad but the data are still quite skewed. This probably means that out of the three options we have seen (original data, log, sqrt) the most normal looking distribution would be achieved with the log transformation. While it would be completely alright to use log transformed data we will extend this a bit more and introduce a more advanced concept called **Box-Cox transformation** which will allow us to achieve an even more precise result.
 
 ## Box-Cox Transformation
 {: #bc}
 
 Box-Cox transformation is a stiatistical procedure developed by Geoerge Box and Sir David Roxbee Cox for transforming non-normally distributed data into a normal distribution. The transformation is not as straightforward as logarithmic or square-root transformations and requires a bit more explanation. We will start by giving out an equation that describes the transformation (do not worry if you do not understand the equation, it is not essential).
 
-<center> <img src="{{ site.baseurl }}/boxcox_formula.png" alt="Img" style="width: 800px;"/> </center>
+<center> <img src="{{ site.baseurl }}/boxcox_formula.png" alt="Img" style="width: 300px;"/> </center>
 
-We can see that the transformation is determined by a parameter **lambda** and **if lambda is 0 the transformation is simply log transformation**. Essentially, Box-Cox transformation uses the above equation and different lambda values to test different strengths of transformations and determines at which lambda value the distribution is most normal. It is therefore much more **precise** then just comparing sqrt and log transformations - it tries out many more options! The animation below demonstrates how the different lambda values change the results of transformation.
+We can see that the transformation is determined by a parameter **lambda** and **if lambda is 0 the transformation is simply log transformation**. Essentially, Box-Cox transformation uses the above equation and different lambda values to test different strengths of transformations and determines at which lambda value the distribution is most normal. It is therefore much more **precise** than just comparing sqrt and log transformations - it tries out many more options! The animation below demonstrates how the different lambda values change the results of transformation.
 
 <center> <img src="{{ site.baseurl }}/animated_boxcox.gif" alt="Img" style="width: 800px;"/> </center>!
 
-Now let's try to use Box-Cox transformation on our data. To do this we can use `boxcox()` function from `MASS` package which we have loaded earlier. `boxcox` function takes as an argument either a **model object** or a **model formula** so we will start with building a simple linear model from the original data using `lm()` function looking at how the abundance changed over time (year ~ pop). With default values it tests values for lambda in the range (-2, 2) with 0.1 steps so quite a few lambda values!
+Now let's try to use Box-Cox transformation on our data. To do this we can use `boxcox()` function from `MASS` package which we have loaded earlier. `boxcox()` function takes as an argument either a **model object** or a **model formula** so we will start with building a simple linear model from the original data using `lm()` function looking at how the abundance changed over time (year ~ pop) which is appropriate for our research question. With default values `boxcox()` tests values for lambda in the range (-2, 2) with 0.1 steps so quite a few lambda values!
 
 ```r
 # Build a model
@@ -215,9 +275,10 @@ stork.mod <- lm(pop ~ year, data = stork)
 # Find the optimal lambda for Box-Cox
 bc <- boxcox(stork.mod)
 ```
-After you run the `boxcox` command a plot like the one below should show up in your plot console.
 
-<center> <img src="{{ site.baseurl }}/boxcox_plot.png" alt="Img" style="width: 800px;"/> </center>
+After you run the `boxcox()` command a plot like the one below should show up in your plot console.
+
+<center> <img src="{{ site.baseurl }}/boxcox_plot.png" alt="Img" style="width: 400px;"/> </center>
 
 The plot shows the optimal value of the lambda parameter. We can see that for our data it is somewhere around 0.1. To extract the exact optimal value we can use the code below.
 
@@ -225,7 +286,8 @@ The plot shows the optimal value of the lambda parameter. We can see that for ou
 # Extract the optimal lambda value
 (lambda <- bc$x[which.max(bc$y)])
 ```
-Now that we have the exact value, we can use it to transform our data by applying the formula from above and the lambda value.
+
+Now that we have the exact value of optimal lambda, we can use it to transform our data by applying the formula from above and the lambda value.
 
 ```r
 # Transform the data using this lambda value
