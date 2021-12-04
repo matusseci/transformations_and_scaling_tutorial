@@ -23,7 +23,7 @@ author: Matus Seci
   - [`log` transformation](#log)
   - [Square root `sqrt` transformation](#sqrt)
   - [Box-Cox transformation using `boxcox()`](#bc)
-  - [Building models using transformed data and reverting transformations](#trans_lin)
+  - [Building models using transformed data and reversing transformations](#trans_lin)
 3. [**Part II: Scaling**](#Scaling)
   - [Standardization](#Standardization)
   - [Normalization](#Normalization)
@@ -51,7 +51,7 @@ While we will use programming language `R` throughout the tutorial, the concepts
 ## Data and Materials
 {: #DataMat}
 
-You can find all the data that you require for completing this tutorial on this [GitHub repository](INSET LINK). We encourage you to download the data to your computer and work through the examples along the tutorial as this reinforces your thinking and understanding of the concepts taught here.
+You can find all the data that you require for completing this tutorial on this [GitHub repository](https://github.com/matusseci/transformations_and_scaling_materials). We encourage you to download the data to your computer and work through the examples along the tutorial as this reinforces your understanding of the concepts taught in the tutorial.
 
 
 
@@ -87,7 +87,7 @@ Now we can look at the basic structure of the dataframe to get some idea of the 
 str(LPI_species)
 summary(LPI_species)
 ```
-We can see that the dataset contains information about 31 species. In this part we will look at the population data of the white stork (__Ciconia ciconia__) sampled using the **direct counts** method. In particular we will attempt to answer the following research question:
+We can see that the dataset contains information about 31 species. In this part we will look at the population data of the white stork (<i>Ciconia ciconia<i>) sampled using the **direct counts** method. In particular we will attempt to answer the following research question:
 
 **How has the population of the white stork changed over time?**
 
@@ -220,9 +220,7 @@ We can see that the data have been constrained to a much narrower range (y-axis)
 
 <center> <img src="{{ site.baseurl }}/stork_log_hist.png" alt="Img" style="width: 800px;"/> </center>
 
-Now this look much closer to the normal distribution than the previous histogram! You can see the transformation in practice in the animation below.
-
-**INSERT ANIMATION**
+Now this look much closer to the normal distribution than the previous histogram!
 
 **NOTE** Log transformations are often used to transform right-skewed data, however, the transformation has a major shortcoming which is that it only works for **positive non-zero** data. This is due to the mathematical properties of the logarithmic function. If you find out that your data have a 0 values but you would still like to use log transformation you can **add a constant** to the variable before performing the transformation, for example log(x + 1) where x is the variable. This way you can get rid of the negative or zero values. You can do this either manually or using `log1p()` function. However, you should still use this method with caution as adding a constant changes the properties of the logartihm and it might not transform the data in a desirable way.
 
@@ -259,7 +257,7 @@ stork <- stork %>%
 
 This does not look bad but the data are still quite skewed. This probably means that out of the three options we have seen (original data, log, sqrt) the most normal looking distribution would be achieved with the log transformation. While it would be completely alright to use log transformed data we will extend this a bit more and introduce a more advanced concept called **Box-Cox transformation** which will allow us to achieve an even more precise result.
 
-## Box-Cox Transformation
+## Box-Cox transformation
 {: #bc}
 
 Box-Cox transformation is a stiatistical procedure developed by Geoerge Box and Sir David Roxbee Cox for transforming non-normally distributed data into a normal distribution. The transformation is not as straightforward as logarithmic or square-root transformations and requires a bit more explanation. We will start by giving out an equation that describes the transformation (do not worry if you do not understand the equation, it is not essential).
@@ -267,7 +265,7 @@ Box-Cox transformation is a stiatistical procedure developed by Geoerge Box and 
 <center> <img src="{{ site.baseurl }}/boxcox_formula.png" alt="Img" style="width: 300px;"/> </center>
 Source: [Statistics How To](https://www.statisticshowto.com/box-cox-transformation/)
 
-We can see that the transformation is determined by a parameter **lambda** and **if lambda is 0 the transformation is simply log transformation**. Essentially, Box-Cox transformation uses the above equation and different lambda values to test different strengths of transformations and determines at which lambda value the distribution is most normal. It is therefore much more **precise** than just comparing sqrt and log transformations - it tries out many more options! The animation below demonstrates how the different lambda values change the results of transformation.
+We can see that the transformation is determined by a parameter **lambda** and **if lambda is 0 the transformation is simply log transformation**. Essentially, Box-Cox transformation uses the above equation and different lambda values to test different strengths of transformations and determines at which lambda value the distribution is most normal. It is therefore much more **precise** than just comparing sqrt and log transformations - it tries out many more options! The animation below demonstrates how the different lambda values change the results of transformation.  
 
 <center> <img src="{{ site.baseurl }}/animated_boxcox.gif" alt="Img" style="width: 800px;"/> </center>
 
@@ -325,6 +323,8 @@ Before proceeding to model the data we can visually appreciate the differences b
                         ncol = 2))  # number of columns in the panel
 ```
 <center> <img src="{{ site.baseurl }}/stork_dist_panel.png" alt="Img" style="width: 800px;"/> </center>
+
+**NOTE** Box-Cox transformation, like log and sqrt transformations, is limited to be used with positive non-zero data only. However, there exists an extension of Box-Cox transformation which is applicable to data containing zero and negative values as well - **the Yeo-Johnson transformation**. As you would probably expect the formula for the Yeo-Johnson transformation is more complicated to understand and the procedure is beyond the scope of this tutorial. However, if you want to find out more about it we recommend you read the Wikipedia page for [power transformations](https://en.wikipedia.org/wiki/Power_transform) which describes the mathematics of both general Box-Cox and Yeo-Johnson transformations.  
 
 ## Building models using transformed data and reversing transformations
 {: #trans_lin}
@@ -465,7 +465,7 @@ Source: [Towards Data Science](https://towardsdatascience.com/all-about-feature-
 ## Standardization
 {: #Standardization}
 
-As in the case of transformation we will work with a dataset from Living Planet Index. This time we will use population data on the atlantic salmon (__Salmo salar__) but unlike in the previous case we will keep observations obtained by all the methods. We will answer a similar question to the one in the previous example:
+As in the case of transformation we will work with a dataset from Living Planet Index. This time we will use population data on the atlantic salmon (<i>Salmo salar<i>) but unlike in the previous case we will keep observations obtained by all the methods. We will answer a similar question to the one in the previous example:
 
 **Did the population of the atlantic salmon decrease over time?**
 
@@ -513,10 +513,11 @@ We can see that the individual populations have different distributions but many
 
 <center> <img src="{{ site.baseurl }}/standardization_formula.png" alt="Img" style="width: 300px;"/> </center>
 
-You might ask why this procedure would not work for other distributions. Well, the main issue here is that other distributions such as Poisson, binomial or exponential are not well described by their mean and standard deviation. This is due to the **asymmetry** of these distributions. Look at the animation below to see what would happen if we applied standardization to binomial data. As you can see we do not achieve the desired result which would be center on 0 and standard deviation of 1.
+You might ask why this procedure would not work for other distributions. Well, the main issue here is that other distributions such as Poisson, binomial or exponential are not well described by their mean and standard deviation. This is due to the **asymmetry** of these distributions. Look at the animation below to see what would happen if we applied standardization to exponential data. While the mean = 0 and standard deviation = 1 in the scaled data, the distribution was not transformed in any useful way and the mean and standard deviation do not describe it well at all.
 
+<center> <img src="{{ site.baseurl }}/standard_norm_animation.gif" alt="Img" style="width: 800px;"/> </center>
 
-**insert animation**
+<center> <img src="{{ site.baseurl }}/standard_expanimation.gif" alt="Img" style="width: 800px;"/> </center>
 
 Let's therefore move on to apply standardization to our data. We will use a combination of `group_by()` and `mutate()` to standardize data from each of the studies individually.
 
@@ -575,12 +576,12 @@ The data in the `pop_scaled_rev` column should match the data in the `pop` colum
 
 There is one imporatant issue to consider when working with scaled data but presenting the unscaled version. We can notice in our histograms above that in the original data we have most of the data with a very small value and then some outliers which have very large values. This can create a major issue when presenting the data, in particular it will make y-axis scale very high and squish all the small value data points on the x-axis. While this is technically correct, the visualization would not correctly convey the message which is the trend that we have detected. In situations like this it is safe to simply present the scaled data instead of reversing the scaling and **explain in the text of your report the reason why you did this**. It might be more difficult to understand the meaning of the effect size/slope since it will not have any meaningful units but the prediction plot will be much more clear and interpretable.  
 
-# Normalization
+## Normalization
 {: #Normalization}
 
 **Normalization** is another scaling procedure but unlike **standaridzation** it can be used for any distribution. In fact, it's purpose is quite different from standardization. Standardization aims to convert any normal distribution into a standard normal but the goal of normalization is to **rescale the data into a set range of values**. It is defined as **subtracting minimum value and dividing by the range of the original variable**. Using this procedure on a set of data which contains only **non-negative values** will result in a **range of [0, 1]** and if there are **negative values** the range will be **[-1, 1]**. The most important property of this scaling procedure is that it **does not change the relative distances between individual data points and so should not alter the data distribution**.
 
-<center> <img src="{{ site.baseurl }}/normalization_formula.png" alt="Img" style="width: 800px;"/> </center>
+<center> <img src="{{ site.baseurl }}/normalization_formula.png" alt="Img" style="width: 300px;"/> </center>
 
 Now you might ask why you would want to scale data this way if it only changes the range but not the shape of the data distribution? There are several reasons why you might want to do this:
 - **Using several variables with different ranges and units** - this is essentially the same reason as the one we had for standardization with the difference that normalization can be applied to any set of data to make them unitless, not just normally distributed data, with an equal effect (i.e. there is no 'preferred' distribution as in the case of standardization).
@@ -593,6 +594,9 @@ Now you might ask why you would want to scale data this way if it only changes t
 As you can see there are plenty of reasons why we would want to use normalization rather than another type of scaling or normalization. Since showing all of these options is beyond the scope of this tutorial, we will only learn how to apply the normalization procedure in R and show its results through histograms.
 
 For this part we will work with a different but a very well known dataset called **Palmer Penguins**. It is available through a package in R so you just need to install it and you can access the data at any point hereafter.
+
+<center> <img src="{{ site.baseurl }}/palmer_penguins.png" alt="Img" style="width: 300px;"/> </center>
+Source: [Palmer Penguins R package vignette](https://allisonhorst.github.io/palmerpenguins/articles/intro.html). Artwork by Allison Horst.
 
 ```r
 # Install the penguins package
@@ -652,7 +656,7 @@ Modelling data is not always our end goal. Sometimes we only want to present the
 
 This functionality is implemented within ``ggplot2`` and extend by the `scales` package. It offers a series of functions for effectively modifying the labels and breaks to fit the scale used and even let's us define our own axis scale transformation which is not part of ggplot2. Let's try out this functionality.
 
-We will work with yet another species from the Living Planet Index database - the leatherback turtle (__Dermochelys coriacea__).
+We will work with yet another species from the Living Planet Index database - the leatherback turtle (<i>Dermochelys coriacea<i>).
 
 ```r
 # Import packages
@@ -706,7 +710,7 @@ Now we can see all the data points with correct y-axis labels for the log transf
 # 5. Summary
 {: #Summary}
 
-Congratulations, you made it to the end of the tutorial. Working with data can often be a daunting and complicated task, particularly when your data does not fit into any of the common data distribution types. However, now you are equipped with a range of tools to make adjustments and allow you to visualize and model all sorts of messy datasets. We started with non-linear transformations and learned how to use log, sqrt and Box-Cox transformations and reverse these transformations, then we explored how scaling can be used by exploring standardization and normalization and finally we introduced a simple way to change scales of plot axes and easily adjust labels to fix the scales.   
+Congratulations, you made it to the end of the tutorial. Working with data can often be a daunting and complicated task, particularly when your data does not fit into any of the common data distribution types. However, now you are equipped with a range of tools to make adjustments and allow you to visualize and model all sorts of messy datasets. We started with non-linear transformations and learned how to use log, sqrt and Box-Cox transformations, and reverse these transformations. Then, we explored how scaling can be used by learning about standardization and normalization and finally we introduced a simple way to change scales of plot axes and easily adjust labels to correctly describe the given scale.   
 
 # 6. Challenge
 {: #Challenge}
