@@ -60,6 +60,9 @@ Now we are ready to dive into the world of transformations and scaling!
 # 2. Part I: Data Transformations
 {: #Transformations}
 
+<center> <img src="{{ site.baseurl }}/stork_photo.JPG" alt="Img" style="width: 800px;"/> </center>
+Juvenile white stork. Author: Matus Seci
+
 Data tranformations represent procedure where a mathematical function is equally applied to all points in the dataset. In this tutorial, we will condier transformations to be mainly describign the situation where the mathematical function we apply is **non-linear**, i.e. the effect of applying the function to a point with a low value is not equal to the effect of applying the function to a point with a large value. As we mentioned in the introduction, probably the main reason to use data transformations is to adjust data distribution to fit into the assumptions of a model we want to use. Since explaining statistical concepts is always easier with examples, let's jump straight into it!
 
 To start off, open a new R script in RStudio and write down a header with the title of the script (e.g. the tutorial name), your name and contact details and the last date you worked on the script.
@@ -97,7 +100,7 @@ Throughout the tutorial we will use so called 'pipe' operator (`%>%`) which allo
 # Extract the white stork data from the main dataset and adjust the year variable
 stork <- LPI_species %>%
   filter(Common.Name == 'White stork' & Sampling.method == 'Direct counts')%>%
-  mutate(year = parse_number(as.character(year))  # convert the year column to character and then parse the numeric part
+  mutate(year = parse_number(as.character(year)))  # convert the year column to character and then parse the numeric part
 ```
 
 We will use `ggplot2` library for most of our visualizations. However, before we make the first and explore the data we will define a custom theme to give our plots a better look and save time not having to repeat code. **This part is completely voluntary as it does not affect the main concepts presented, you can create your own theme if you want or even use some of the pre-built themes in ggplot2 such as `theme_bw()` or `theme_classic()`.**
@@ -163,14 +166,14 @@ Now we are ready to make some beautiful plots. Let's look at the distribution of
 ```
 <center> <img src="{{ site.baseurl }}/stork_hist.png" alt="Img" style="width: 800px;"/> </center>
 
-We can see that our data are very skewed with most of the values being relatively small. This data distribution is far from normal and therefore we cannot use data directly for modelling with linear models which assume normal distribution. This is where transformations come in!
+We can see that our data are very right-skewed (i.e. most of the values are relatively small). This data distribution is far from normal and therefore we cannot use the data directly for modelling with linear models which assume normal distribution. This is where transformations come in!
 
-**NOTE** Observant learners will notice that we are dealing here with **count data** and therefore we could model this dataset using **generalized linear model** with **Poisson distribution**. This would be a perfectly correct approach, however, for the sake of this tutorial we will stick with a linear model to demonstrate how we can use transformations to model even non-normally distributed data.
+<i> Observant learners will notice that we are dealing here with **count data** and therefore we could model this dataset using **generalized linear model** with **Poisson distribution**. This would be a perfectly correct approach, however, for the sake of this tutorial we will stick with simple linear models to demonstrate how we can use transformations to model non-normally distributed data using simple linear models. <i>
 
 ## Logarithmic transformation
 {: #log}
 
-As we can see our data are right-skewed. We can also plot a simple scatter plot to see that a distribution like this would not be very well described by a straight line but rather an **exponential function**.
+The histogram above showed that we are dealing with skewed data. We can also plot a simple scatter plot to see that these data would not be very well described by a straight line. An **exponential** curve would fit the data much better.
 
 ```r
 # Plot a scatter plot of the data
@@ -185,7 +188,7 @@ As we can see our data are right-skewed. We can also plot a simple scatter plot 
 ```
 <center> <img src="{{ site.baseurl }}/stork_scatter.png" alt="Img" style="width: 800px;"/> </center>
 
-This means that we need to apply a **logarithmic transformation** which will **linearize** the data and we will be able to fit linear model. Luckily, this procedure is very simple in R using a base R function `log()` which by default uses **natural logarithm**, i.e. logarithm with base e (Euler's number). The choice of the base for a logarithm is somehow arbitrary but it relates to the 'strength of transformation' which we will cover a bit later in the tutorial. If you wanted to use logarithm with a different base you could either define it in the funcion call like this `log(x, base = 10)` or for some common types use pre-built functions (e.g. `log10(x)` or `log2(x)`). Together with `mutate()` function we can create a new column with the transformed data so that we do not overwrite the original data in case we want to use them later.
+This means that we need to apply a **logarithmic transformation** which will **linearize** the data and we will be able to fit a linear model. Luckily, this procedure is very simple in R using a base R function `log()` which by default uses **natural logarithm**, i.e. logarithm with base e (Euler's number). The choice of the base for a logarithm is somehow arbitrary but it relates to the 'strength of transformation' which we will cover a bit later in the tutorial. If you wanted to use a logarithm with a different base you could either define it in the function call like this `log(x, base = 10)` or for some common types use pre-built functions (e.g. `log10(x)` or `log2(x)`). Together with `mutate()` function we can create a new column with the transformed data so that we do not overwrite the original data in case we want to use them later.
 
 ```r
 # Log transform the data
@@ -205,7 +208,7 @@ stork <- stork %>%
 
 <center> <img src="{{ site.baseurl }}/stork_scatter_log.png" alt="Img" style="width: 800px;"/> </center>
 
-We can see that the data have been constrained to a much narrower range (y-axis) and while there is not a crystal clear linear pattern we could argue that a linear line would fit the best for this scatter plot. Let's have a look at how the data distribution changed by looking at a histogram.
+We can see that the data have been constrained to a much narrower range (y-axis) and while there is not a crystal clear linear pattern we could argue that a linear line would fit the best for this scatter plot. Let's have a look at how the data distribution changed by looking at a histogram of the log transformed data.
 
 ```r
 # Plot the histogram of log transformed data
@@ -220,21 +223,23 @@ We can see that the data have been constrained to a much narrower range (y-axis)
 
 <center> <img src="{{ site.baseurl }}/stork_log_hist.png" alt="Img" style="width: 800px;"/> </center>
 
-Now this look much closer to the normal distribution than the previous histogram!
+Even though the distribution is not perfectly normal it looks much closer to the normal distribution than the previous histogram!
 
-**NOTE** Log transformations are often used to transform right-skewed data, however, the transformation has a major shortcoming which is that it only works for **positive non-zero** data. This is due to the mathematical properties of the logarithmic function. If you find out that your data have a 0 values but you would still like to use log transformation you can **add a constant** to the variable before performing the transformation, for example log(x + 1) where x is the variable. This way you can get rid of the negative or zero values. You can do this either manually or using `log1p()` function. However, you should still use this method with caution as adding a constant changes the properties of the logartihm and it might not transform the data in a desirable way.
+<i> Log transformations are often used to transform right-skewed data, however, the transformation has a major shortcoming which is that it only works for **positive non-zero** data. This is due to the mathematical properties of the logarithmic function.
+
+If you find out that your data have a 0 values but you would still like to use log transformation you can **add a constant** to the variable before performing the transformation, for example log(x + 1) where x is the variable. This way you can get rid of the negative or zero values. You can do this either manually or using `log1p()` function. However, you should use this method with caution as adding a constant changes the properties of the logartihm and it might not transform the data in a desirable way. <i>
 
 Our data look quite normally distributed now but we might think that a **weaker** transformation could result in a data more centered than what we have now. We will therefore try to apply such a transformation - square-root transformation.
 
 ## Square-root transformation
 {: #sqrt}
 
-**Square root transformation** works in a very similar way as logarithmic transformation and is used in similar situations (right-skewed data), however, it is a **weaker** transformation. What do we mean by weaker? Well, to answer this question it is a good idea to look at the graphs describing these mathematical functions.
+**Square root transformation** works in a very similar way as logarithmic transformation and is used in similar situations (right-skewed data), however, it is a **weaker** transformation. What do we mean by weaker? Well, to answer this question it is a good idea to look at the graphs describing log and sqrt functions.
 
 <center> <img src="{{ site.baseurl }}/log_sqrt_func.png" alt="Img" style="width: 800px;"/> </center>
 Source: [StackOverflow](https://stackoverflow.com/questions/42038294/is-complexity-ologn-equivalent-to-osqrtn/42038398)
 
-As you can see the logarithmic function levels off much more quickly which means that it constrains large values much more strongly than square-root. As a result, with log transformation extreme values in the dataset will not have as strong an effect on the resultant distribution. The plots also indicate that square-root transformation has the same disadvantage as log transformation - it can only be used on positive non-zero data.
+As you can see the logarithmic function levels off much more quickly which means that it constrains large values much more strongly than square-root. As a result, with log transformation extreme values in the dataset will become less important. The plots also indicate that square-root transformation has the same disadvantage as log transformation - it can only be used on positive non-zero data.
 
 Similar to the log transformation, we can use `sqrt()` function in base R to make this transformation.
 
@@ -255,21 +260,30 @@ stork <- stork %>%
 
 <center> <img src="{{ site.baseurl }}/stork_hist_sqrt.png" alt="Img" style="width: 800px;"/> </center>
 
-This does not look bad but the data are still quite skewed. This probably means that out of the three options we have seen (original data, log, sqrt) the most normal looking distribution would be achieved with the log transformation. While it would be completely alright to use log transformed data we will extend this a bit more and introduce a more advanced concept called **Box-Cox transformation** which will allow us to achieve an even more precise result.
+This does not look bad but the data are still quite skewed. This probably means that out of the three options we have seen (original data, log, sqrt) the most normal looking distribution would be achieved with the log transformation.
+
+While it would be completely alright to use log transformed data, we will extend our transformations toolbox with yet another, more advanced, type of transformation, **Box-Cox transformation**.
 
 ## Box-Cox transformation
 {: #bc}
 
-Box-Cox transformation is a stiatistical procedure developed by Geoerge Box and Sir David Roxbee Cox for transforming non-normally distributed data into a normal distribution. The transformation is not as straightforward as logarithmic or square-root transformations and requires a bit more explanation. We will start by giving out an equation that describes the transformation (do not worry if you do not understand the equation, it is not essential).
+Box-Cox transformation is a stiatistical procedure developed by Geoerge Box and Sir David Roxbee Cox for transforming non-normally distributed data into a normal distribution. The transformation is not as straightforward as logarithmic or square-root transformations and requires a bit more explanation. We will start by trying to understand the equation that describes the transformation.
 
 <center> <img src="{{ site.baseurl }}/boxcox_formula.png" alt="Img" style="width: 300px;"/> </center>
 Source: [Statistics How To](https://www.statisticshowto.com/box-cox-transformation/)
 
-We can see that the transformation is determined by a parameter **lambda** and **if lambda is 0 the transformation is simply log transformation**. Essentially, Box-Cox transformation uses the above equation and different lambda values to test different strengths of transformations and determines at which lambda value the distribution is most normal. It is therefore much more **precise** than just comparing sqrt and log transformations - it tries out many more options! The animation below demonstrates how the different lambda values change the results of transformation.  
+Looking at the equation we can notice several important properties of the transformation:
 
-<center> <img src="{{ site.baseurl }}/animated_boxcox.gif" alt="Img" style="width: 800px;"/> </center>
+1. The transformation is determined by a parameter **lambda**.
+2. If lambda = 0 the transformation is simply log transformation, otherwise, the transformation is determined by the given equation.
 
-Now let's try to use Box-Cox transformation on our data. To do this we can use `boxcox()` function from `MASS` package which we have loaded earlier. `boxcox()` function takes as an argument either a **model object** or a **model formula** so we will start with building a simple linear model from the original data using `lm()` function looking at how the abundance changed over time (year ~ pop) which is appropriate for our research question. With default values `boxcox()` tests values for lambda in the range (-2, 2) with 0.1 steps so quite a few lambda values!
+The animation below demonstrates how the different lambda values change the results of the transformation.  
+
+<center> <img src="{{ site.baseurl }}/animated_boxcox.gif" alt="Img" style="width: 600px;"/> </center>
+
+Now, the important question is, how do we determine lambda? In the age of computers, it is very easy - we will just let R try out many different options and evaluate which lambda value makes the transformed data the closest to normal distribution. You can see that this procedure is much more **precise** than log or sqrt transformations - we are trying many different options and strengths of transformations!  
+
+Now let's try to use Box-Cox transformation on our data. To do this we can use `boxcox()` function from `MASS` package which we loaded earlier. `boxcox()` function takes as an argument either a **model object** or a **model formula** so we will start with building a simple linear model from the original data using `lm()` function looking at how the abundance changed over time (year ~ pop) which is appropriate for our research question. With default settings `boxcox()` tests values for lambda in the range (-2, 2) with 0.1 steps which is quite a few lambda values!
 
 ```r
 # Build a model
@@ -281,7 +295,7 @@ bc <- boxcox(stork.mod)
 
 After you run the `boxcox()` command a plot like the one below should show up in your plot console.
 
-<center> <img src="{{ site.baseurl }}/boxcox_plot.png" alt="Img" style="width: 800px;"/> </center>
+<center> <img src="{{ site.baseurl }}/bcplot.png" alt="Img" style="width: 800px;"/> </center>
 
 The plot shows the optimal value of the lambda parameter. We can see that for our data it is somewhere around 0.1. To extract the exact optimal value we can use the code below.
 
@@ -290,7 +304,7 @@ The plot shows the optimal value of the lambda parameter. We can see that for ou
 (lambda <- bc$x[which.max(bc$y)])
 ```
 
-Now that we have the exact value of optimal lambda, we can use it to transform our data by applying the formula from above and the lambda value.
+Now that we have the exact value, we can use it to transform our data by applying the formula from above and the lambda value.
 
 ```r
 # Transform the data using this lambda value
@@ -311,7 +325,11 @@ stork <- stork %>%
 
 We can see that the distribution is very similar to the one we got using the log transformation. This is not surprising since the lambda value we used was approximately 0.1 and lambda = 0 would result in log transformation. You can probably now see that in our situation using the log transformation would be a pretty good approximation to the Box-Cox optimal result.
 
-Before proceeding to model the data we can visually appreciate the differences between the transformations we have learned and applied so far by plotting them in a panel together using `cowplot` package and `plot_grid()` function.
+ <i> Box-Cox transformation, like log and sqrt transformations, is limited to be used with positive non-zero data only. However, there exists an extension of Box-Cox transformation which is applicable to data containing zero and negative values as well - **the Yeo-Johnson transformation**.
+
+ As you would probably expect the formula for the Yeo-Johnson transformation is more complicated to understand. However, if you want to find out more about it we recommend you read the Wikipedia page for [power transformations](https://en.wikipedia.org/wiki/Power_transform) which describes the mathematics of both Box-Cox and Yeo-Johnson transformations. <i>
+
+Before proceeding to model the data, we can visually appreciate the differences between the transformations we have learned and applied so far by plotting them in a panel together using `cowplot` package and `plot_grid()` function.
 
 ```r
 # Panel of histograms for different transformations
@@ -324,12 +342,12 @@ Before proceeding to model the data we can visually appreciate the differences b
 ```
 <center> <img src="{{ site.baseurl }}/stork_dist_panel.png" alt="Img" style="width: 800px;"/> </center>
 
-**NOTE** Box-Cox transformation, like log and sqrt transformations, is limited to be used with positive non-zero data only. However, there exists an extension of Box-Cox transformation which is applicable to data containing zero and negative values as well - **the Yeo-Johnson transformation**. As you would probably expect the formula for the Yeo-Johnson transformation is more complicated to understand and the procedure is beyond the scope of this tutorial. However, if you want to find out more about it we recommend you read the Wikipedia page for [power transformations](https://en.wikipedia.org/wiki/Power_transform) which describes the mathematics of both general Box-Cox and Yeo-Johnson transformations.  
+
 
 ## Building models using transformed data and reversing transformations
 {: #trans_lin}
 
-We will now continue to build a model using the transformed data and answer our research question. We will use the Box-Cox transformed data but feel free to use the log transformed data if you want to keep things more simple!
+We will now continue to build a model using the transformed data and answer our research question. We will use the Box-Cox transformed data but feel free to use the log transformed data if you want to keep things simpler!
 
 ```r
 # Fit new model using the Box-Cox transformed data
@@ -340,18 +358,22 @@ summary(stork.bc.mod)
 ```
 <center> <img src="{{ site.baseurl }}/boxcox_model_summary.png" alt="Img" style="width: 800px;"/> </center>
 
-We can see that our results are highly significant with the effect size of 0.04 and standard error of 0.006. But what exactly does this mean? Since we have transformed our data we are getting the estimate (effect size) and standard error on the transformed scale, not on the original scale! This might be quite confusing when we present our results. We will therefore **back-transform** our data into the original scale but before that let's have a quick look at the model assumption of normality to see how well our transformed data did compared with the model that would use the original data. We will use so called Q-Q plots for this. If the data are normally distributed, the points in the Q-Q plot should lie on the line.
+We can see that our results are highly significant with the **effect size = 0.04** and **standard error = 0.006**. But what exactly does this mean?
+
+Since we have transformed our data we are getting the estimate (effect size) and standard error on **the transformed scale, not on the original scale!** This might be quite confusing when we present our results. We will therefore **back-transform** our data into the original scale.
+
+However, before that let's have a quick look at the model assumption of normality to see how well our transformed data did compared with the model that would use the original data. We will use so called Q-Q plots for this. If the data are normally distributed, the points in the Q-Q plot should lie on the line.
 
 ```r
 # Tell R to display two plots next to each other
 par(mfrow = c(1, 2))
 
 # Q-Q plot for the original data model
-qqnorm(stork.mod$residuals)
+qqnorm(stork.mod$residuals, main = 'Q-Q Plot Original Data')
 qqline(stork.mod$residuals)
 
 # Q-Q plot for the Box-Cox transformed data model
-qqnorm(stork.bc.mod$residuals)
+qqnorm(stork.bc.mod$residuals, main = 'Q-Q Plot Box-Cox Transformed Data')
 qqline(stork.bc.mod$residuals)
 
 # Reset the plot display settings
@@ -362,7 +384,9 @@ par(mfrow = c(1, 1))
 
 We can see that while the transformed data are not perfectly aligned with the line, they deviate much less than the original data. We can therefore conclude that the transformed data are a good fit for the normality assumption. We can move to the back-transformations now.
 
-Reversing transformations is essentially applying a function to the transformed data which is the inverse of the operation that was used to do the transformation. The reverse transformations for the procedures we used in this tutorial are listed in the table below together with their functions in R (given they exist).
+<i> We do not present here the other assumptions and diagnostic plots for linear models since they are not the focus of the tutorial. However, if you want to check them you can simply use `plot(stork.bc.mod)` and press 'Enter' in the console, you should then see the plots pop up in the plot viewer window. You can read more about the other assumptions and their diagnostic plots on [this blog](http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/).<i>
+
+Reversing transformations is essentially applying a function to the transformed data which is the inverse of the operation that was used to do the transformation. The reverse transformations for the procedures we used in this tutorial are listed in the table below together with their functions in R.
 
 <center> <img src="{{ site.baseurl }}/formulas_table.png" alt="Img" style="width: 800px;"/> </center>
 
@@ -376,9 +400,9 @@ stork <- stork %>%
          back_bc = (bcpop*lambda + 1)^(1/lambda)) %>%
   glimpse()  # displays a couple of observations from each column
 ```
-We can see that the values in these columns and the `pop` column match which is great and we can use these transformations to obtain predictions of our results on a relevant scale.
+We can see that the values in these columns and the `pop` column match which is great. Therefore, we can use these back-transformations to obtain predictions of our results on a relevant scale.
 
-We will use `ggpredict()` function from `ggeffects` package to get predictions and then convert them into a relevant scale by applying a relevant reverse transformation.
+We will use `ggpredict()` function from `ggeffects` package to get predictions and then convert them into the original scale by applying a relevant reverse transformation.
 
 ```r
 # Get the predictions of our model
@@ -387,17 +411,18 @@ stork.pred <- ggpredict(stork.bc.mod, terms = c('year'))
 # View the predictions dataframe
 View(stork.pred)
 ```
-If we look at the predictions dataframe we can see that it has several predicted values which we will use to plot the prediction line as well as standard error for each prediction and confidence interval values. However, we need to apply the reverse transformation to relevant columns first. You can probably guess that we will apply it to the `predicted` column but we also need to obtain correct error/confidence interval. Here we could easily make a mistake if we chose the `std.error` column. This is because due to the non-linearity of our transformations the error will not be the same on both sides of the line, for example if our effect size in log scale was 0.5 and standard error 0.2 the correct reverse transformation would be exp(0.5) for the effect size and exp(0.7) and exp(0.3), **not** exp(0.5) + exp(0.2) and exp(0.5) - exp(0.2)! These would produce different results. Therefore we need to adjust columns `conf.low` and `conf.high` to get the correct confidence intervals.
+If we look at the predictions dataframe we can see that it has several predicted values which we will use to plot the prediction line as well as standard error for each prediction and confidence interval values. However, we need to apply the reverse transformation to the relevant columns first.
+
+You can probably guess that we will apply it to the `predicted` column which contains the predicted values from our model. But we also need to obtain correct error/confidence intervals. Here, we could easily make a mistake if we chose the `std.error` column. This is because due to the non-linearity of our transformations the error will not be the same on both sides of the line, for example if our effect size in log scale was 0.5 and standard error 0.2 the correct reverse transformation would be exp(0.5) for the effect size and exp(0.7) and exp(0.3) for the confidence intervals, **not** exp(0.5) + exp(0.2) and exp(0.5) - exp(0.2). These would produce different results (feel free to try typing these in the console). Therefore, we need to adjust columns `conf.low` and `conf.high` (not `std.error`) to get the correct confidence intervals.
 
 ```r
 # Apply the reverse transformation on the relevant columns
 stork.pred$predicted <- (stork.pred$predicted*lambda + 1)^(1/lambda)
 stork.pred$conf.low <- (stork.pred$conf.low*lambda + 1)^(1/lambda)
 stork.pred$conf.high <- (stork.pred$conf.high*lambda + 1)^(1/lambda)
-
 ```
 
-And we can also convert the slope and and confidence intervals from the model summary to include as annotation in our final prediction plot. To make this easier we will first convert the model summary we got into a dataframe using `tidy()` function from the `broom` package. Then, we will extract the slope and standard error and use them to calculate the values in the original scale using back-transformations.
+And we can also convert the slope and and confidence intervals from the model summary to include as an annotation in our final prediction plot. To make this easier we will first convert the model summary we got into a dataframe using `tidy()` function from the `broom` package. Then, we will extract the slope and standard error and use them to calculate the values in the original scale using back-transformations.
 
 ```r
 # Convert the summary table into a dataframe
@@ -410,10 +435,12 @@ slope <- round(slope, 3)
 # conf. intervals
 
 # upper
+# we extract the slope and add the standard error to get the upper CI
 upper_ci <- ((mod.summary$estimate[2]+mod.summary$std.error[2])*lambda + 1)^(1/lambda)
 upper_ci <- round(upper_ci, 3)
 
 # lower
+# we extract the slope and subtract the standard error to get the upper CI
 lower_ci <- ((mod.summary$estimate[2]-mod.summary$std.error[2])*lambda + 1)^(1/lambda)
 lower_ci <- round(lower_ci, 3)
 ```
@@ -437,7 +464,7 @@ Now that we have everything ready we can combine the back-transformed prediction
         title = "Global white stork population increased between 1970-2008",
         caption = 'Data Source: Living Planet Index') +
    plot_theme()  +
-   xlim(c(1970, 2008))
+   xlim(c(1970, 2008))  # we set a limit to the x-axis to show only the relevant years
 )
 
 # Save the figure
@@ -448,16 +475,19 @@ ggsave(plot = stork_plot,
 
 <center> <img src="{{ site.baseurl }}/stork_plot.png" alt="Img" style="width: 800px;"/> </center>
 
-We can see that the prediction line is not straight but is more of a curve which reflects the fact that we have used transformed data. We have also corrected the slope and confidence intervals from the model to correct values. Now we have a final figure which we could present in a report.
+We can see that the prediction line is not straight but is more of a curve which reflects the fact that we have used transformed data. We have also corrected the slope and confidence intervals from the model to correct values and displayed them in the figure. Now, we have a final figure which we could present in a report.
 
-This is the end of the first part of the tutorial. You should now be comfortable using transformations to convert non-normal data into a normal shape, use them in a model and then reverse the transformation to present results in the original units. If you would like to explore other transformations which you could use, you can have a look at this [Wikipedia page](https://en.wikipedia.org/wiki/Data_transformation_(statistics)) or this [article](http://www.biostathandbook.com/transformation.html).
+This is the end of the first part of the tutorial. You should now be comfortable using transformations to convert non-normal data into a normal distribution, use them in a model and then reverse the transformation to present results in the original units. If you would like to explore other transformations which you could use, you can have a look at this [Wikipedia page](https://en.wikipedia.org/wiki/Data_transformation_(statistics)) or this [article](http://www.biostathandbook.com/transformation.html).
 
 Next we will look at a different type of data manipulation - scaling.
 
 # 3. Part II: Scaling
 {: #Scaling}
 
-Scaling describes a set of procedures used to adjust the distribution of the data, particularly its **range** through **linear transformations**. Linear transformation in this context means that it uses only basic arithmetic operations (addition, subtraction, multiplication, division) and not exponentiating or logarithms. You might now ask the question, in what situations we would not use transformations like log and sqrt but use scaling? Imagine that you have a dataset of species abundance measurements where some data were obtained by counts (units = individuals) and others using a population index (no units). The former might be in a range of 1000s while the other will have values from 0 - 1! Is it possible to directly compare the two? Of course not. This is where scaling comes in. It allows us to put two variables on **the same scale and remove units** and thus make them **comparable**.  In this tutorial we will cover the two most common types of scaling: **standardization** and **normalization**.   
+<center> <img src="{{ site.baseurl }}/salmon_photo.jpeg" alt="Img" style="width: 800px;"/> </center>
+Credits: Hans-Petter Fjeld (CC BY-SA)
+
+Scaling describes a set of procedures used to adjust the distribution of data, particularly the **range**, through **linear transformations**. Linear transformation in this context means that it uses only basic arithmetic operations (addition, subtraction, multiplication, division) and not exponentiating or logarithms. You might now ask the question, in what situations we would not use transformations like log and sqrt but use scaling? Imagine that you have a dataset of species abundance measurements where some data were obtained by counts (units = individuals) and others using a population index (no units). The former might be in a range of 1000s while the other will have values from 0 - 1! Is it possible to directly compare the two? Of course not. This is where scaling comes in. It allows us to put two variables on **the same scale and remove units** and thus make them **comparable**.  In this tutorial we will cover the two most common types of scaling: **standardization** and **normalization**.   
 
 <center> <img src="{{ site.baseurl }}/scaling_demo.png" alt="Img" style="width: 800px;"/> </center>
 Source: [Towards Data Science](https://towardsdatascience.com/all-about-feature-scaling-bcc0ad75cb35)
@@ -513,11 +543,11 @@ We can see that the individual populations have different distributions but many
 
 <center> <img src="{{ site.baseurl }}/standardization_formula.png" alt="Img" style="width: 300px;"/> </center>
 
-You might ask why this procedure would not work for other distributions. Well, the main issue here is that other distributions such as Poisson, binomial or exponential are not well described by their mean and standard deviation. This is due to the **asymmetry** of these distributions. Look at the animation below to see what would happen if we applied standardization to exponential data. While the mean = 0 and standard deviation = 1 in the scaled data, the distribution was not transformed in any useful way and the mean and standard deviation do not describe it well at all.
+You might ask why this procedure would not work for other distributions. Well, the main issue here is that other distributions such as Poisson, binomial or exponential are not well described by their mean and standard deviation. This is due to the **asymmetry** of these distributions. Look at the animations below to see what happens when we apply standardization to normally distributed data and exponential data.
 
-<center> <img src="{{ site.baseurl }}/standard_norm_animation.gif" alt="Img" style="width: 800px;"/> </center>
+<center> <img src="{{ site.baseurl }}/standard_norm_animation.gif" alt="Img" style="width: 600px;"/> </center>
 
-<center> <img src="{{ site.baseurl }}/standard_expanimation.gif" alt="Img" style="width: 800px;"/> </center>
+<center> <img src="{{ site.baseurl }}/standard_expanimation.gif" alt="Img" style="width: 600px;"/> </center>
 
 Let's therefore move on to apply standardization to our data. We will use a combination of `group_by()` and `mutate()` to standardize data from each of the studies individually.
 
@@ -595,7 +625,7 @@ As you can see there are plenty of reasons why we would want to use normalizatio
 
 For this part we will work with a different but a very well known dataset called **Palmer Penguins**. It is available through a package in R so you just need to install it and you can access the data at any point hereafter.
 
-<center> <img src="{{ site.baseurl }}/palmer_penguins.png" alt="Img" style="width: 300px;"/> </center>
+<center> <img src="{{ site.baseurl }}/palmer_penguins.png" alt="Img" style="width: 800px;"/> </center>
 Source: [Palmer Penguins R package vignette](https://allisonhorst.github.io/palmerpenguins/articles/intro.html). Artwork by Allison Horst.
 
 ```r
@@ -651,6 +681,9 @@ After this your data would be ready to be crunched through an algorithm of your 
 
 # 4. Part III: Scaling for Data Visualization
 {: #datavis_scaling}
+
+<center> <img src="{{ site.baseurl }}/turtle_photo.jpg" alt="Img" style="width: 800px;"/> </center>
+Credits: <i>NOAA Fisheries<i>
 
 Modelling data is not always our end goal. Sometimes we only want to present the dataset we have through creating beautiful and effective data visualization. In that case, it can be impractical to go through the process of converting the variables into different scales or transforming them. Instead, we can simply change the scale on the final plot.
 
