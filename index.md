@@ -5,8 +5,6 @@ subtitle: Understand the fundamental concepts of manipulating data distributions
 date: 28/11/2021
 author: Matus Seci
 ---
-<title> Transforming and scaling data <title>
-<subtitle> Understand the fundamental concepts of manipulating data distributions for modelling and visualization <subtitle>
 
 # Tutorial aims:
 
