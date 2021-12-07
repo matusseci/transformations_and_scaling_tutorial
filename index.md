@@ -1,10 +1,12 @@
 ---
 theme: jekyll-theme-cayman
 title: Transforming and scaling data
-subtitle: "Understand the fundamental concepts of manipulating data distributions for modelling and visualization"
-date: "28/11/2021"
-author: "Matus Seci"
+subtitle: Understand the fundamental concepts of manipulating data distributions for modelling and visualization
+date: 28/11/2021
+author: Matus Seci
 ---
+<title> Transforming and scaling data <title>
+<subtitle> Understand the fundamental concepts of manipulating data distributions for modelling and visualization <subtitle>
 
 # Tutorial aims:
 
@@ -770,7 +772,7 @@ Congratulations, you made it to the end of the tutorial. Working with data can o
 If you would like to practice your newly acquired skills, try to pick one of the animals from the dataset with which we did not work in the tutorial and model how its population changed over time. In your script, try to address the following points and provide a reason for your decisions.
 
 1. What data distribution do my data represent?
-2. Do I need to use a non-linear transformation or scale my data?
+2. Do I need to use a non-linear transformation or scale my data to fit a linear model?
 3. Do I need to transform or scale my data at all?
 4. When presenting my results, is it better to back-transform the data or leave them in the transformed scale?
 
