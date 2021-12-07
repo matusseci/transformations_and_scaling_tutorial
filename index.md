@@ -1,9 +1,9 @@
 ---
 theme: jekyll-theme-cayman
 title: Transforming and scaling data
-subtitle: Understand the fundamental concepts of manipulating data distributions for modelling and visualization
-date: 28/11/2021
-author: Matus Seci
+subtitle: "Understand the fundamental concepts of manipulating data distributions for modelling and visualization"
+date: "28/11/2021"
+author: "Matus Seci"
 ---
 
 # Tutorial aims:
@@ -61,7 +61,7 @@ Now we are ready to dive into the world of transformations and scaling!
 {: #Transformations}
 
 <center> <img src="{{ site.baseurl }}/stork_photo.JPG" alt="Img" style="width: 800px;"/> </center>
-Juvenile white stork. Author: Matus Seci
+Credits: Matus Seci
 
 Data tranformations represent procedure where a mathematical function is equally applied to all points in the dataset. In this tutorial, we will condier transformations to be mainly describign the situation where the mathematical function we apply is **non-linear**, i.e. the effect of applying the function to a point with a low value is not equal to the effect of applying the function to a point with a large value. As we mentioned in the introduction, probably the main reason to use data transformations is to adjust data distribution to fit into the assumptions of a model we want to use. Since explaining statistical concepts is always easier with examples, let's jump straight into it!
 
@@ -92,7 +92,7 @@ summary(LPI_species)
 ```
 We can see that the dataset contains information about 31 species. In this part we will look at the population data of the white stork (<i>Ciconia ciconia<i>) sampled using the **direct counts** method. In particular we will attempt to answer the following research question:
 
-**How has the population of the white stork changed over time?**
+**How did the population of the white stork change over time?**
 
 Throughout the tutorial we will use so called 'pipe' operator (`%>%`) which allows us to connect multiple functions from `tidyverse` libraries in order to make our code more efficient and streamlined. If you are unfamiliar with this concept you can learn more about it in this tutorial on [advanced data manipulation in R](https://ourcodingclub.github.io/tutorials/data-manip-efficient/). We use `dplyr` function `filter()` to extract the white stork data and adjust the year variable to be a numeric variable using `mutate()` and `parse_number()`.
 
@@ -225,9 +225,9 @@ We can see that the data have been constrained to a much narrower range (y-axis)
 
 Even though the distribution is not perfectly normal it looks much closer to the normal distribution than the previous histogram!
 
-<i> Log transformations are often used to transform right-skewed data, however, the transformation has a major shortcoming which is that it only works for **positive non-zero** data. This is due to the mathematical properties of the logarithmic function.
+<i> Log transformations are often used to transform right-skewed data, however, the transformation has a major shortcoming which is that it only works for **positive non-zero** data. This is due to the mathematical properties of the logarithmic function.<i>
 
-If you find out that your data have a 0 values but you would still like to use log transformation you can **add a constant** to the variable before performing the transformation, for example log(x + 1) where x is the variable. This way you can get rid of the negative or zero values. You can do this either manually or using `log1p()` function. However, you should use this method with caution as adding a constant changes the properties of the logartihm and it might not transform the data in a desirable way. <i>
+<i> If you find out that your data have a 0 values but you would still like to use log transformation you can **add a constant** to the variable before performing the transformation, for example log(x + 1) where x is the variable. This way you can get rid of the negative or zero values. You can do this either manually or using `log1p()` function. However, you should use this method with caution as adding a constant changes the properties of the logartihm and it might not transform the data in a desirable way. <i>
 
 Our data look quite normally distributed now but we might think that a **weaker** transformation could result in a data more centered than what we have now. We will therefore try to apply such a transformation - square-root transformation.
 
@@ -325,9 +325,9 @@ stork <- stork %>%
 
 We can see that the distribution is very similar to the one we got using the log transformation. This is not surprising since the lambda value we used was approximately 0.1 and lambda = 0 would result in log transformation. You can probably now see that in our situation using the log transformation would be a pretty good approximation to the Box-Cox optimal result.
 
- <i> Box-Cox transformation, like log and sqrt transformations, is limited to be used with positive non-zero data only. However, there exists an extension of Box-Cox transformation which is applicable to data containing zero and negative values as well - **the Yeo-Johnson transformation**.
+ <i> Box-Cox transformation, like log and sqrt transformations, is limited to be used with positive non-zero data only. However, there exists an extension of Box-Cox transformation which is applicable to data containing zero and negative values as well - **the Yeo-Johnson transformation**.<i>
 
- As you would probably expect the formula for the Yeo-Johnson transformation is more complicated to understand. However, if you want to find out more about it we recommend you read the Wikipedia page for [power transformations](https://en.wikipedia.org/wiki/Power_transform) which describes the mathematics of both Box-Cox and Yeo-Johnson transformations. <i>
+ <i>As you would probably expect the formula for the Yeo-Johnson transformation is more complicated to understand. However, if you want to find out more about it we recommend you read the Wikipedia page for [power transformations](https://en.wikipedia.org/wiki/Power_transform) which describes the mathematics of both Box-Cox and Yeo-Johnson transformations. <i>
 
 Before proceeding to model the data, we can visually appreciate the differences between the transformations we have learned and applied so far by plotting them in a panel together using `cowplot` package and `plot_grid()` function.
 
@@ -487,7 +487,9 @@ Next we will look at a different type of data manipulation - scaling.
 <center> <img src="{{ site.baseurl }}/salmon_photo.jpeg" alt="Img" style="width: 800px;"/> </center>
 Credits: Hans-Petter Fjeld (CC BY-SA)
 
-Scaling describes a set of procedures used to adjust the distribution of data, particularly the **range**, through **linear transformations**. Linear transformation in this context means that it uses only basic arithmetic operations (addition, subtraction, multiplication, division) and not exponentiating or logarithms. You might now ask the question, in what situations we would not use transformations like log and sqrt but use scaling? Imagine that you have a dataset of species abundance measurements where some data were obtained by counts (units = individuals) and others using a population index (no units). The former might be in a range of 1000s while the other will have values from 0 - 1! Is it possible to directly compare the two? Of course not. This is where scaling comes in. It allows us to put two variables on **the same scale and remove units** and thus make them **comparable**.  In this tutorial we will cover the two most common types of scaling: **standardization** and **normalization**.   
+Scaling describes a set of procedures used to adjust the distribution of data, particularly the **range**, through **linear transformations**. Linear transformation in this context means that it uses only basic arithmetic operations (addition, subtraction, multiplication, division) and not exponentiating or logarithms.
+
+You might now ask the question, in what situations we would not use transformations like log and sqrt but use scaling? Imagine that you have a dataset of species abundance measurements where some data were obtained by counts (units = individuals) and others using a population index (no units). The former might be in a range of 1000s while the other will have values from 0 - 1! Is it possible to directly compare the two? Of course not. This is where scaling comes in. It allows us to put two variables on **the same scale and remove units** and thus make them **comparable**.  In this tutorial we will cover the two most common types of scaling: **standardization** and **normalization**.   
 
 <center> <img src="{{ site.baseurl }}/scaling_demo.png" alt="Img" style="width: 800px;"/> </center>
 Source: [Towards Data Science](https://towardsdatascience.com/all-about-feature-scaling-bcc0ad75cb35)
@@ -495,11 +497,11 @@ Source: [Towards Data Science](https://towardsdatascience.com/all-about-feature-
 ## Standardization
 {: #Standardization}
 
-As in the case of transformation we will work with a dataset from Living Planet Index. This time we will use population data on the atlantic salmon (<i>Salmo salar<i>) but unlike in the previous case we will keep observations obtained by all the methods. We will answer a similar question to the one in the previous example:
+As in the case of transformation we will work with a dataset from Living Planet Index. This time we will use population data for the atlantic salmon (<i>Salmo salar<i>) but unlike in the previous case we will keep observations obtained by all the sampling methods. We will answer a similar question to the one in the previous example:
 
-**Did the population of the atlantic salmon decrease over time?**
+**How did the population of atlantic salmon change over time?**
 
-Let's extract the data from the main dataset and look at the `units` variable to see what units the population measurements are in.
+Let's extract the data from the main dataset and look at the `units` and `Sampling.method` variables.
 
 ```r
 # Extract the Atlantic salmon data from the main dataset
@@ -509,11 +511,14 @@ salmon <- LPI_species %>%
 
 # Look at the units in the dataset
 unique(salmon$Units)
+unique(salmon$Sampling.method)
 ```
 
-That's a lot of different units! We deinitely cannot compare units like `Number of smolt` and `Individual counts`. Furthermore, our dataset contains population data from multiple studies and locations which will probably have different average populations and trends so the range of data will be different. Therefore, we need to scale the data in some way to be able to use it for answering our question but before that let's have a look at the distributions of the individual studies. To do this we will use `ggplot2` function `facet_wrap()` which allows us to create plots of the each population measured with one line instead of creating each plot separately. Our dataset has a variable `id` which contains a unique identifier for each of the studies and we can use it for plotting the distributions.
+That's a lot of different units and sampling methods! We definitely cannot compare units like `Number of smolt` and `Individual counts`. Furthermore, our dataset contains population data from multiple studies which could have used any combination of the units and sampling methods. In addition, these were probably done in different locations which will have different average populations and trends so the ranges of data will be different. Therefore, we need to scale the data in some way to be able to use it for answering our question.
 
-Sometimes the plot viewer in RStudio can have trouble displaying large plots. A good workaround for this issue is simply saving the plot on your computer and viewing it then.
+However, before scaling the data let's have a look at the distributions of the individual studies. To do this we will use `ggplot2` function `facet_wrap()` which allows us to create plots of each population measured with one line instead of having to create each plot separately. Our dataset has a variable `id` which contains a unique identifier for each of the studies and we can use it for plotting the distributions.
+
+Sometimes the plot viewer in RStudio can have trouble displaying large plots such as this one. A good workaround for this issue is simply saving the plot on your computer and viewing it then.
 
 ```r
 # Look at the distribution of the data for each of the populations
@@ -537,19 +542,21 @@ ggsave(plot = salmon_density_loc,
 
 <center> <img src="{{ site.baseurl }}/salmon_hist_loc.png" alt="Img" style="width: 800px;"/> </center>
 
-We can see that the individual populations have different distributions but many of them are close to normal distribution on their own scale which is good. This means that we can use **standardization** to scale the data.
+We can see that the individual populations have different distributions but many of them are close to normal distribution on their own scale. This means that we can use **standardization** to scale the data.
 
-**Standardization** is a scaling procedure during which we **subtract the mean from the original data and divide them by standard deviation**. It is especially useful for data which are already normally distributed, in fact, the name of the procedure derives from the term **standard normal**. Normal distribution is defined by its **mean** and **standard deviation** which means that given these two parameters you can draw the exact curve describing the distribution (this fact alone is one of the main reasons why normal distribution is so popular, it is really easy to measure these two properties). **Standard normal** refers to a normal distribution with mean = 0 and standard deviation = 1. So when we apply the procedure to our data we should get a roughly normal distribution centered at 0 with standard looking tails.
+**Standardization** is a scaling procedure defined as **subtracting the mean from the original data and dividing them by standard deviation. This shifts the centre of the distribution to 0 and scales standard deviation to 1**. It is especially useful for data which are already normally distributed, in fact, the name of the procedure derives from the term **standard normal**. Normal distribution is defined by its **mean** and **standard deviation** which means that given these two parameters you can draw the exact curve describing the distribution (this fact alone is one of the main reasons why normal distribution is so popular, it is really easy to measure mean and standard deviation). **Standard normal** refers to a normal distribution with mean = 0 and standard deviation = 1.
 
 <center> <img src="{{ site.baseurl }}/standardization_formula.png" alt="Img" style="width: 300px;"/> </center>
 
-You might ask why this procedure would not work for other distributions. Well, the main issue here is that other distributions such as Poisson, binomial or exponential are not well described by their mean and standard deviation. This is due to the **asymmetry** of these distributions. Look at the animations below to see what happens when we apply standardization to normally distributed data and exponential data.
+You might ask why this procedure would not work for other distributions? Well, the main issue here is that other distributions such as Poisson, binomial or exponential are not well described by their mean and standard deviation. This is due to the **asymmetry** of these distributions. Look at the animations below to see what happens when we apply standardization to normally distributed data and exponential data.
 
 <center> <img src="{{ site.baseurl }}/standard_norm_animation.gif" alt="Img" style="width: 600px;"/> </center>
 
 <center> <img src="{{ site.baseurl }}/standard_expanimation.gif" alt="Img" style="width: 600px;"/> </center>
 
-Let's therefore move on to apply standardization to our data. We will use a combination of `group_by()` and `mutate()` to standardize data from each of the studies individually.
+You can clearly see that the standardized normal distribution is centered at 0 and has normal looking tails (standard deviation = 1). Formally, the same is true for the exponential distribution, however, it is not clear at all from looking at the distribution and neither mean nor standard deviation would be useful in describing its shape or values.
+
+Since we have verified that many of our studies have normally distributed population variable, let's move on to apply standardization to our data. We will use a combination of `group_by()` and `mutate()` to standardize data from each of the studies individually.
 
 ```r
 # Standardize the data
@@ -558,6 +565,7 @@ salmon <- salmon %>%
   mutate(scalepop_standard = (pop-mean(pop))/(sd(pop))) %>%  # apply standardization
   ungroup()  # ungroup the data to avoid issue with grouping later on
 ```
+
 Now let's have a look at how our overall data distribution has changed by plotting histogram of the original data and the standardized data.
 
 ```r
@@ -591,7 +599,7 @@ This is a huge difference! We can clearly see that our data are now centered on 
 
 We would now proceed with modelling the data using the scaled variable but since the procedure would be essentially the same as in the transformation example above, we will not fully repeat the process here.
 
-The only difference would be back-scaling the data to show in the final predictions plot. Essentially, the procedure is the same as for other transformations - apply reverse mathematical operations. Since for standardization we **subtracted the mean and divided by standard deviation of the original data**  to reverse the transforamtion we need to **multiply by the standard deviation and add the mean of the original data**. Another thing to pay attention to is that we used this procedure on each individual study separately and thus the reversing has to do the same. This is demonstrated in the code below.
+The only difference would be back-scaling the data to show in the final predictions plot. Essentially, the procedure is the same as for other transformations - apply reverse mathematical operations. Since for standardization we **subtracted the mean and divided by standard deviation of the original data**, to reverse the transformation we need to **multiply the scaled data by the standard deviation of the original data and add the mean of the original data**. Another thing to pay attention to is that we used this procedure on each individual study separately and thus the reversing has to do the same. This is demonstrated in the code below.
 
 ```r
 # Reverse transformation test of the salmon data
@@ -609,19 +617,20 @@ There is one imporatant issue to consider when working with scaled data but pres
 ## Normalization
 {: #Normalization}
 
-**Normalization** is another scaling procedure but unlike **standaridzation** it can be used for any distribution. In fact, it's purpose is quite different from standardization. Standardization aims to convert any normal distribution into a standard normal but the goal of normalization is to **rescale the data into a set range of values**. It is defined as **subtracting minimum value and dividing by the range of the original variable**. Using this procedure on a set of data which contains only **non-negative values** will result in a **range of [0, 1]** and if there are **negative values** the range will be **[-1, 1]**. The most important property of this scaling procedure is that it **does not change the relative distances between individual data points and so should not alter the data distribution**.
+**Normalization** is another scaling procedure but unlike **standaridzation** it is suitable for use with any distribution. In fact, it's purpose is quite different from standardization. Standardization aims to convert any normal distribution into a standard normal but the goal of normalization is to **rescale the data into a set range of values**. It is defined as **subtracting minimum value and dividing by the range of the original variable**. Using this procedure on a set of data which contains only **non-negative values** will result in a **range of [0, 1]** and if there are **negative values** the range will be **[-1, 1]**. The most important property of this scaling procedure is that it **does not change the relative distances between individual data points and so does not alter the data distribution**.
 
 <center> <img src="{{ site.baseurl }}/normalization_formula.png" alt="Img" style="width: 300px;"/> </center>
 
-Now you might ask why you would want to scale data this way if it only changes the range but not the shape of the data distribution? There are several reasons why you might want to do this:
+Now you might ask why you would want to scale data this way if it only changes the range but not the shape of the data distribution? There are several reasons why you might want to do this.
+
 - **Using several variables with different ranges and units** - this is essentially the same reason as the one we had for standardization with the difference that normalization can be applied to any set of data to make them unitless, not just normally distributed data, with an equal effect (i.e. there is no 'preferred' distribution as in the case of standardization).
 
 - **Distance-based algorithms and dimensionality reduction** - building on the first point, if we want to use an algorithm for exploring our data which relies on calculating and comparing distances between points we need to have the variables in the same range, otherwise variables with the larger range will have disproportionate influence on the algorithm results. Such algorithms include mostly **machine learning algorithms** such as k-nearest neihbours and k-means clustering algorithm, and dimensionality reduction techniques such as principal component analysis (PCA). If you would like to learn more about these topics Coding Club has very useful tutorials on [introductory machine learning](https://ourcodingclub.github.io/tutorials/machine-learning/) and [ordination](https://ourcodingclub.github.io/tutorials/ordination/) available.
 
-- **Convergence issues and improving model performance** - when we use more complicated models such **hierarchical models** and **Bayesian models** whose underlying calculations are much more complicated than for a regular linear model we can encounter the issue of **convergence**. **Convergence** essentially means that the model has successfully finished calculating the result. Non-scaled data often cause complicated models to **diverge (i.e. not converge)** as the distances and relationships between the points become too complicated for the model to handle. This is where normalization becomes very useful as it normalizes the absolute distances between data points and therefore makes the likelihood of model divergence lower.   
+- **Convergence issues and improving model performance** - when we use more complicated models such as **hierarchical models** and **Bayesian models** whose underlying calculations are much more complicated than for a regular linear model we can encounter issues with **convergence**. **Convergence** essentially means that the model has successfully finished calculating the result. Non-scaled data often cause complicated models to **diverge (i.e. not converge)** as the distances and relationships between the points become too complicated for the model to handle. This is where normalization becomes very useful as it normalizes the absolute distances between data points and therefore makes the likelihood of model divergence lower.   
 
 
-As you can see there are plenty of reasons why we would want to use normalization rather than another type of scaling or normalization. Since showing all of these options is beyond the scope of this tutorial, we will only learn how to apply the normalization procedure in R and show its results through histograms.
+As you can see there are plenty of reasons why we would want to use normalization rather than another type of scaling or transformation. Since showing all of these options is beyond the scope of this tutorial, we will only learn how to apply the normalization procedure in R and show its effects through histograms.
 
 For this part we will work with a different but a very well known dataset called **Palmer Penguins**. It is available through a package in R so you just need to install it and you can access the data at any point hereafter.
 
@@ -642,7 +651,9 @@ penguins <- palmerpenguins::penguins
 str(penguins)
 summary(penguins)
 ```
-As you can see, the dataset contains data for three different species of penguins and measurements of bill length and depth (in mm), flipper length (in mm) and body mass (in g) and some other variables such as sex but we will focus on the four 'measurement' variables. Each of these variables has a different range of values, i.e. flipper length in mm will be a much larger value than the beak depth in mm. In addition, the body mass is in completely different units - grams. If we wanted to use this dataset for, let's say, classifying the penguin species based on these 4 measurements we would need to scale them. That is what we are going to do now. Let's therefore apply the normalization to the 4 variables. Before we do that we need to remove observations with NA values so that we do not get any unexpected errors.  
+As you can see, the dataset contains data for three different species of penguins and measurements of bill length and depth (in mm), flipper length (in mm) and body mass (in g) and some other variables such as sex but we will focus on the four 'measurement' variables. Each of these variables has a different range of values, i.e. flipper length in mm will be a much larger value than the beak depth in mm. In addition, the body mass is in completely different units - grams.
+
+If we wanted to use this dataset for, let's say, classifying the penguin species based on these 4 measurements we would need to scale them. That is what we are going to do now. Let's therefore apply the normalization to the 4 variables. Before we do that we need to remove observations with missing (`NA`) values so that we do not get any unexpected errors.  
 
 ```r
 # Remove observations with NA for the variables we are considering
@@ -657,7 +668,9 @@ penguins <- penguins %>%
 ```
 Ugh, this is a quite repetetive code. There surely has to be a better way to apply the same procedure to 4 variables at once? Indeed, there is a much more effective way.
 
-`caret` package contains a function `preProcess()` which we can use to apply many different scaling and transformation procedures including **normalization**, **standardization** and even **Box-Cox transformation**. I kept this function a secret up until this point of the tutorial since it is important to understand how the individual scaling procedures and transformations work which is best done through manually implementing them. However, at this point we can make our lives easier by utilizing `preProcess()` as shown below (this code should produce the same result as above but will overwrite the existing columns instead of creating new ones).
+`caret` package contains a function `preProcess()` which we can use to apply many different scaling and transformation procedures including **normalization**, **standardization** and even **Box-Cox transformation**. I kept this function a secret up until this point of the tutorial since it is important to understand how the individual scaling procedures and transformations work which is best done through manually implementing them. Furthermore, with `preProcess()` we cannot do back-transformations - we need to write the functions manually as we have done so far.
+
+However, at this point we can make our lives easier by utilizing `preProcess()` for applying scaling as shown below (**NOTE** `preProcess()` will overwrite the existing columns instead of creating new ones).
 
 ```r
 # Load the library
@@ -675,9 +688,15 @@ The code for histograms has also got quite repetetive at this point so we will n
 
 As you can see the shapes of the histograms have not changed which is what we would expect. However, if you look at the x-axis there is a clear change in the scale. All the variables are now scaled on the range from 0 to 1 which is exactly what we wanted to achieve.
 
-After this your data would be ready to be crunched through an algorithm of your choice. We will not follow through with that in this tutorial as it would require explaining a lot of concepts not directly related to scaling and transformation. Instead, we will move on to the last part which will explain how to effectively change the scale on your plots without the need to change the variables themselves.
+After this your data would be ready to be crunched through an algorithm of your choice. We will not follow through with that in this tutorial as it would require explaining a lot of concepts not directly related to scaling and transformation.
 
-**NOTE** There are many other scaling procedures which can be useful in different situations. You can explore scaling on this very good [Wikipedia](https://en.wikipedia.org/wiki/Feature_scaling) page or in this article at [Towards Data Science](https://towardsdatascience.com/all-about-feature-scaling-bcc0ad75cb35) which both mention many other different procedures such as the **robust scaler** and **unit vector scaler**. Another important thing to point out is that the terminology used in scaling and transformations can get very confusing and unclear, with each article refering to a single procedure with a different name and sometimes even using one name for two different concepts. Unfortunately, there is no way to avoid this issue. Probably the best strategy to wrap your head around scaling is to remember **the concepts and formulas instead of names**.  
+This is the end of the second part of the tutorial. At this stage you should be comfortable with explaining what scaling aims to achieve, what the differences are between standardization and normalization and when you would use each, and finally be able to apply the procedures in R. After completing the parts on transformations and scaling you are now equipped with several tools to tackle issues with normality, and different scales and units in your data.
+
+<i>There are many other scaling procedures which can be useful in different situations. You can explore scaling on this very good [Wikipedia](https://en.wikipedia.org/wiki/Feature_scaling) page or in this article at [Towards Data Science](https://towardsdatascience.com/all-about-feature-scaling-bcc0ad75cb35) which both mention many other different procedures such as the **robust scaler** and **unit vector scaler**.<i>
+
+<i>Another important thing to point out is that the terminology used in scaling and transformations can get very confusing and unclear, with each article refering to a single procedure with a different name and sometimes even using one name for two different concepts. Unfortunately, there is no way to avoid this issue. Probably the best strategy to avoid confusion around scaling is to remember **the concepts and formulas instead of names** and present those in your reports.<i>  
+
+We will now move on to the last part of the tutorial which will explain how to effectively change the scale on your plots without the need to change the variables themselves.
 
 # 4. Part III: Scaling for Data Visualization
 {: #datavis_scaling}
@@ -685,9 +704,9 @@ After this your data would be ready to be crunched through an algorithm of your 
 <center> <img src="{{ site.baseurl }}/turtle_photo.jpg" alt="Img" style="width: 800px;"/> </center>
 Credits: <i>NOAA Fisheries<i>
 
-Modelling data is not always our end goal. Sometimes we only want to present the dataset we have through creating beautiful and effective data visualization. In that case, it can be impractical to go through the process of converting the variables into different scales or transforming them. Instead, we can simply change the scale on the final plot.
+Modelling data is not always our end goal. Sometimes we only want to present the dataset we have through creating beautiful and effective data visualizations. In that case, it can be impractical to go through the process of converting the variables into different scales or transforming them. Instead, we can simply change the scale on the final plot.
 
-This functionality is implemented within ``ggplot2`` and extend by the `scales` package. It offers a series of functions for effectively modifying the labels and breaks to fit the scale used and even let's us define our own axis scale transformation which is not part of ggplot2. Let's try out this functionality.
+This functionality is implemented within ``ggplot2`` and extended by the `scales` package. It offers a series of functions for effectively modifying the labels and breaks to fit the scale used and even lets us define our own axis scale transformation which is not part of ggplot2. Let's try out this functionality.
 
 We will work with yet another species from the Living Planet Index database - the leatherback turtle (<i>Dermochelys coriacea<i>).
 
@@ -704,7 +723,7 @@ turtle <- LPI_species %>%
 str(turtle)
 summary(turtle)
 ```
-Closely inspecting the dataset we find out that the units used to describe the population of the turtles are essentially either nesting female counts or nest counts. We will assume that these represent the same phenomenon and therefore can be combined to be a good proxy for population abundance. In this part our goal is just to create a nice visualization showing the population counts, not fully model the trend.
+Inspecting the dataset we find out that the units used to describe the population of the turtles are essentially either nesting female counts or nest counts. We will assume that these represent the same phenomenon and therefore can be combined to be a good proxy for population abundance. In this part our goal is just to create a nice visualization showing the population counts, not fully model the trend.
 
 ```r
 # Plot a scatter plot of the turtle data
@@ -721,7 +740,7 @@ Closely inspecting the dataset we find out that the units used to describe the p
 
 <center> <img src="{{ site.baseurl }}/turtle_scatter.png" alt="Img" style="width: 800px;"/> </center>
 
-We see that a lot of data is pushed to the x-axis is there are big differences between individual data points. From the previous parts of the tutorial we know that in this case a logarithmic transformation may help. Since we only want to change the axis scale we will add `scale_y_log10()` and the argument `scales::label_number()` which will create labels with the actual non-logarithmic values.
+We see that a lot of data is pushed to the x-axis as there are big differences between individual data points. From the previous parts of the tutorial we know that in this case a logarithmic transformation may help. Since we only want to change the axis scale we will add `scale_y_log10()` with the argument `scales::label_number()` to the plot call which will create labels with the actual non-logarithmic values on the logarithmic scale.
 
 ```r
 # Change the scale
@@ -743,7 +762,16 @@ Now we can see all the data points with correct y-axis labels for the log transf
 # 5. Summary
 {: #Summary}
 
-Congratulations, you made it to the end of the tutorial. Working with data can often be a daunting and complicated task, particularly when your data does not fit into any of the common data distribution types. However, now you are equipped with a range of tools to make adjustments and allow you to visualize and model all sorts of messy datasets. We started with non-linear transformations and learned how to use log, sqrt and Box-Cox transformations, and reverse these transformations. Then, we explored how scaling can be used by learning about standardization and normalization and finally we introduced a simple way to change scales of plot axes and easily adjust labels to correctly describe the given scale.   
+Congratulations, you made it to the end of the tutorial. Working with data can often be a daunting and complicated task, particularly when your data does not fit into any of the common data distribution types. However, now you are equipped with a range of tools which allow you to visualize and model all sorts of messy datasets. We started with non-linear transformations and learned how to use log, sqrt and Box-Cox transformations, and then reverse these transformations. Afterwards, we explored how scaling can be used by learning about standardization and normalization and finally we introduced a simple way to change scales of plot axes and easily adjust labels to correctly describe the given scale.   
 
 # 6. Challenge
 {: #Challenge}
+
+If you would like to practice your newly acquired skills, try to pick one of the animals from the dataset with which we did not work in the tutorial and model how its population changed over time. In your script, try to address the following points and provide a reason for your decisions.
+
+1. What data distribution do my data represent?
+2. Do I need to use a non-linear transformation or scale my data?
+3. Do I need to transform or scale my data at all?
+4. When presenting my results, is it better to back-transform the data or leave them in the transformed scale?
+
+Good luck with the challenge and your future exploration of the field of data science!
