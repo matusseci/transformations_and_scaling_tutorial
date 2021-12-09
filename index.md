@@ -34,7 +34,7 @@ author: Matus Seci
 # 1. Introduction
 {: #intro}
 
-Data come in a wide variety of shapes and sizes. We use data distributions to study and understand the data and many models are build around assumptions that the data follow a certain distribution, most typically linear models always assume **normal** distribution of the data. However, real world data rarely perfectly align with the normal distribution and therefore break this assumption. Alternatively, there might be a situation where our data follow a non linear relationship an our standard plots cannot capture it very well. For dealing with these issues we can use **transformations** and **scaling**. They are therefore powerful tools for allowing us to utilize a wide variety of data that would not be available for modelling otherwise and display non-linear relationships between data in more clear and interpretable plots.
+Data come in a wide variety of shapes and sizes. We use data distributions to study and understand the data and many models are built around assumptions that the data follow a certain distribution, most typically linear models always assume **normal** distribution of the data. However, real world data rarely perfectly align with the normal distribution and therefore break this assumption. Alternatively, there might be a situation where our data follow a non-linear relationship an our standard plots cannot capture it very well. For dealing with these issues we can use **transformations** and **scaling**. They are therefore powerful tools for allowing us to utilize a wide variety of data that would not be available for modelling otherwise and display non-linear relationships between data in more clear and interpretable plots.
 
 This tutorial will teach you how to manipulate data using both common and more advanced transformations and scaling procedures in R. In addition, we will have a quick look at situations when adjusting scales on plot axes is a better decision than transforming or scaling data themselves. Throughout the tutorial we will work with datasets from ecological and environmental sciences in order to demonstrate that scaling data and using transformations are very useful tools when working with real world data.  
 
@@ -63,11 +63,11 @@ Now we are ready to dive into the world of transformations and scaling!
 <center> <img src="{{ site.baseurl }}/stork_photo.JPG" alt="Img" style="width: 800px;"/> </center>
 Credits: Matus Seci
 
-Data tranformations represent procedure where a mathematical function is equally applied to all points in the dataset. In this tutorial, we will condier transformations to be mainly describign the situation where the mathematical function we apply is **non-linear**, i.e. the effect of applying the function to a point with a low value is not equal to the effect of applying the function to a point with a large value. As we mentioned in the introduction, probably the main reason to use data transformations is to adjust data distribution to fit into the assumptions of a model we want to use. Since explaining statistical concepts is always easier with examples, let's jump straight into it!
+Data tranformations represent procedure where a mathematical function is equally applied to all points in the dataset. In this tutorial, we will consider transformations to be mainly describing situation where the mathematical function we apply is **non-linear**, i.e. the effect of applying the function to a point with a low value is not equal to the effect of applying the function to a point with a large value. As we mentioned in the introduction, probably the main reason to use data transformations is to adjust data distribution to fit into the assumptions of a model we want to use. Since explaining statistical concepts is always easier with examples, let's jump straight into it!
 
 To start off, open a new R script in RStudio and write down a header with the title of the script (e.g. the tutorial name), your name and contact details and the last date you worked on the script.
 
-In the following parts we will work with the data from the [Living Planet Index](https://livingplanetindex.org/home/index) which is an open-source database containing population data of a large number of species from all around the planet. In each part of the tutorial we will focus on a population of a different species. Let's load it into our script along with the packages we will use in this part of the tutorial. If you do not have some of these packages installed, use `install.packages('package_name')` to install them now and then load them.
+In the following parts we will work with the data from the [Living Planet Index](https://livingplanetindex.org/home/index) which is an open-source database containing population data of a large number of species from all around the planet. In each part of the tutorial we will focus on a population of a different species. Let's load it into our script along with the packages we will use in this part of the tutorial. If you do not have some of these packages installed, use `install.packages('package_name')` to install them before loading them.
 
 ```r
 # Coding Club Tutorial - Transforming and scaling data
@@ -90,7 +90,7 @@ Now we can look at the basic structure of the dataframe to get some idea of the 
 str(LPI_species)
 summary(LPI_species)
 ```
-We can see that the dataset contains information about 31 species. In this part we will look at the population data of the white stork (<i>Ciconia ciconia<i>) sampled using the **direct counts** method. In particular we will attempt to answer the following research question:
+We can see that the dataset contains information about 31 species. In this part we will look at the population data of the white stork (<i>Ciconia ciconia <i>) sampled using the **direct counts** method. In particular we will attempt to answer the following research question:
 
 **How did the population of the white stork change over time?**
 
@@ -103,7 +103,7 @@ stork <- LPI_species %>%
   mutate(year = parse_number(as.character(year)))  # convert the year column to character and then parse the numeric part
 ```
 
-We will use `ggplot2` library for most of our visualizations. However, before we make the first and explore the data we will define a custom theme to give our plots a better look and save time not having to repeat code. **This part is completely voluntary as it does not affect the main concepts presented, you can create your own theme if you want or even use some of the pre-built themes in ggplot2 such as `theme_bw()` or `theme_classic()`.**
+We will use `ggplot2` library for most of our visualizations. However, before we make the first plot and explore the data we will define a custom theme to give our plots a better look and save time not having to repeat code. **This part is completely voluntary as it does not affect the main concepts presented, you can create your own theme if you want or even use some of the pre-built themes in ggplot2 such as `theme_bw()` or `theme_classic()`.**
 
 ```r
 # Define a custom plot theme
@@ -188,7 +188,7 @@ The histogram above showed that we are dealing with skewed data. We can also plo
 ```
 <center> <img src="{{ site.baseurl }}/stork_scatter.png" alt="Img" style="width: 800px;"/> </center>
 
-This means that we need to apply a **logarithmic transformation** which will **linearize** the data and we will be able to fit a linear model. Luckily, this procedure is very simple in R using a base R function `log()` which by default uses **natural logarithm**, i.e. logarithm with base e (Euler's number). The choice of the base for a logarithm is somehow arbitrary but it relates to the 'strength of transformation' which we will cover a bit later in the tutorial. If you wanted to use a logarithm with a different base you could either define it in the function call like this `log(x, base = 10)` or for some common types use pre-built functions (e.g. `log10(x)` or `log2(x)`). Together with `mutate()` function we can create a new column with the transformed data so that we do not overwrite the original data in case we want to use them later.
+This means that we need to apply a **logarithmic transformation** which will **linearize** the data and we will be able to fit a linear model. Luckily, this procedure is very simple in R using a base R function `log()` which by default uses **natural logarithm**, i.e. logarithm with base e (Euler's number). The choice of the base for a logarithm is somewhat arbitrary but it relates to the 'strength of transformation' which we will cover a bit later in the tutorial. If you wanted to use a logarithm with a different base you could either define it in the function call like this `log(x, base = 10)` or for some common types use pre-built functions (e.g. `log10(x)` or `log2(x)`). Together with `mutate()` function we can create a new column with the transformed data so that we do not overwrite the original data in case we want to use them later.
 
 ```r
 # Log transform the data
@@ -267,7 +267,7 @@ While it would be completely alright to use log transformed data, we will extend
 ## Box-Cox transformation
 {: #bc}
 
-Box-Cox transformation is a stiatistical procedure developed by Geoerge Box and Sir David Roxbee Cox for transforming non-normally distributed data into a normal distribution. The transformation is not as straightforward as logarithmic or square-root transformations and requires a bit more explanation. We will start by trying to understand the equation that describes the transformation.
+Box-Cox transformation is a statistical procedure developed by George Box and Sir David Roxbee Cox for transforming non-normally distributed data into a normal distribution. The transformation is not as straightforward as logarithmic or square-root transformations and requires a bit more explanation. We will start by trying to understand the equation that describes the transformation.
 
 <center> <img src="{{ site.baseurl }}/boxcox_formula.png" alt="Img" style="width: 300px;"/> </center>
 Source: [Statistics How To](https://www.statisticshowto.com/box-cox-transformation/)
@@ -283,7 +283,7 @@ The animation below demonstrates how the different lambda values change the resu
 
 Now, the important question is, how do we determine lambda? In the age of computers, it is very easy - we will just let R try out many different options and evaluate which lambda value makes the transformed data the closest to normal distribution. You can see that this procedure is much more **precise** than log or sqrt transformations - we are trying many different options and strengths of transformations!  
 
-Now let's try to use Box-Cox transformation on our data. To do this we can use `boxcox()` function from `MASS` package which we loaded earlier. `boxcox()` function takes as an argument either a **model object** or a **model formula** so we will start with building a simple linear model from the original data using `lm()` function looking at how the abundance changed over time (year ~ pop) which is appropriate for our research question. With default settings `boxcox()` tests values for lambda in the range (-2, 2) with 0.1 steps which is quite a few lambda values!
+Now let's try to use Box-Cox transformation on our data. To do this we can use `boxcox()` function from `MASS` package which we loaded earlier. `boxcox()` function takes as an argument either a **model object** or a **model formula** so we will start with building a simple linear model from the original data using `lm()` function looking at how the abundance changed over time (pop ~ year) which is appropriate for our research question. With default settings `boxcox()` tests values for lambda in the range (-2, 2) with 0.1 steps which is quite a few lambda values!
 
 ```r
 # Build a model
@@ -327,7 +327,7 @@ We can see that the distribution is very similar to the one we got using the log
 
  <i> Box-Cox transformation, like log and sqrt transformations, is limited to be used with positive non-zero data only. However, there exists an extension of Box-Cox transformation which is applicable to data containing zero and negative values as well - **the Yeo-Johnson transformation**.<i>
 
- <i>As you would probably expect the formula for the Yeo-Johnson transformation is more complicated to understand. However, if you want to find out more about it we recommend you read the Wikipedia page for [power transformations](https://en.wikipedia.org/wiki/Power_transform) which describes the mathematics of both Box-Cox and Yeo-Johnson transformations. <i>
+ <i> As you would probably expect the formula for the Yeo-Johnson transformation is more complicated to understand. However, if you want to find out more about it we recommend you read the Wikipedia page for [power transformations](https://en.wikipedia.org/wiki/Power_transform) which describes the mathematics of both Box-Cox and Yeo-Johnson transformations. <i>
 
 Before proceeding to model the data, we can visually appreciate the differences between the transformations we have learned and applied so far by plotting them in a panel together using `cowplot` package and `plot_grid()` function.
 
@@ -341,7 +341,6 @@ Before proceeding to model the data, we can visually appreciate the differences 
                         ncol = 2))  # number of columns in the panel
 ```
 <center> <img src="{{ site.baseurl }}/stork_dist_panel.png" alt="Img" style="width: 800px;"/> </center>
-
 
 
 ## Building models using transformed data and reversing transformations
@@ -384,7 +383,7 @@ par(mfrow = c(1, 1))
 
 We can see that while the transformed data are not perfectly aligned with the line, they deviate much less than the original data. We can therefore conclude that the transformed data are a good fit for the normality assumption. We can move to the back-transformations now.
 
-<i> We do not present here the other assumptions and diagnostic plots for linear models since they are not the focus of the tutorial. However, if you want to check them you can simply use `plot(stork.bc.mod)` and press 'Enter' in the console, you should then see the plots pop up in the plot viewer window. You can read more about the other assumptions and their diagnostic plots on [this blog](http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/).<i>
+<i> We do not present here the other assumptions and diagnostic plots for linear models since they are not the focus of the tutorial. However, if you want to check them you can simply use `plot(stork.bc.mod)` and press 'Enter' in the console, you should then see the plots pop up in the plot viewer window. You can read more about the other assumptions and their diagnostic plots on [this blog](http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/). <i>
 
 Reversing transformations is essentially applying a function to the transformed data which is the inverse of the operation that was used to do the transformation. The reverse transformations for the procedures we used in this tutorial are listed in the table below together with their functions in R.
 
@@ -413,7 +412,7 @@ View(stork.pred)
 ```
 If we look at the predictions dataframe we can see that it has several predicted values which we will use to plot the prediction line as well as standard error for each prediction and confidence interval values. However, we need to apply the reverse transformation to the relevant columns first.
 
-You can probably guess that we will apply it to the `predicted` column which contains the predicted values from our model. But we also need to obtain correct error/confidence intervals. Here, we could easily make a mistake if we chose the `std.error` column. This is because due to the non-linearity of our transformations the error will not be the same on both sides of the line, for example if our effect size in log scale was 0.5 and standard error 0.2 the correct reverse transformation would be exp(0.5) for the effect size and exp(0.7) and exp(0.3) for the confidence intervals, **not** exp(0.5) + exp(0.2) and exp(0.5) - exp(0.2). These would produce different results (feel free to try typing these in the console). Therefore, we need to adjust columns `conf.low` and `conf.high` (not `std.error`) to get the correct confidence intervals.
+You can probably guess that we will apply it to the `predicted` column which contains the predicted values from our model. But we also need to obtain correct error/confidence intervals. Here, we could easily make a mistake if we chose the `std.error` column. This is because due to the non-linearity of our transformations the error will not be the same on both sides of the line, for example if our effect size in log scale was 0.5 and standard error 0.2 the correct reverse transformation would be exp(0.5) for the effect size and exp(0.7) and exp(0.3) for the confidence intervals, **not** exp(0.5) + exp(0.2) and exp(0.5) - exp(0.2). These would produce different results (feel free to try typing the expressions in the console and verify for yourself). Therefore, we need to adjust columns `conf.low` and `conf.high` (not `std.error`) to get the correct confidence intervals.
 
 ```r
 # Apply the reverse transformation on the relevant columns
@@ -497,7 +496,7 @@ Source: [Towards Data Science](https://towardsdatascience.com/all-about-feature-
 ## Standardization
 {: #Standardization}
 
-As in the case of transformation we will work with a dataset from Living Planet Index. This time we will use population data for the atlantic salmon (<i>Salmo salar<i>) but unlike in the previous case we will keep observations obtained by all the sampling methods. We will answer a similar question to the one in the previous example:
+As in the case of transformation we will work with a dataset from Living Planet Index. This time we will use population data for the atlantic salmon (<i> Salmo salar <i>) but unlike in the previous case we will keep observations obtained by all the sampling methods. We will answer a similar question to the one in the previous example:
 
 **How did the population of atlantic salmon change over time?**
 
@@ -599,7 +598,7 @@ This is a huge difference! We can clearly see that our data are now centered on 
 
 We would now proceed with modelling the data using the scaled variable but since the procedure would be essentially the same as in the transformation example above, we will not fully repeat the process here.
 
-The only difference would be back-scaling the data to show in the final predictions plot. Essentially, the procedure is the same as for other transformations - apply reverse mathematical operations. Since for standardization we **subtracted the mean and divided by standard deviation of the original data**, to reverse the transformation we need to **multiply the scaled data by the standard deviation of the original data and add the mean of the original data**. Another thing to pay attention to is that we used this procedure on each individual study separately and thus the reversing has to do the same. This is demonstrated in the code below.
+The only difference would be back-scaling the data after modelling to show in the final predictions plot. Essentially, the procedure is the same as for other transformations - apply reverse mathematical operations. Since for standardization we **subtracted the mean and divided by standard deviation of the original data**, to reverse the transformation we need to **multiply the scaled data by the standard deviation of the original data and add the mean of the original data**. Another thing to pay attention to is that we used this procedure on each individual study separately and thus the reversing has to do the same. This is demonstrated in the code below.
 
 ```r
 # Reverse transformation test of the salmon data
@@ -612,7 +611,7 @@ salmon <- salmon %>%
 
 The data in the `pop_scaled_rev` column should match the data in the `pop` column which they do and so we applied the reverse transformation correctly.
 
-There is one imporatant issue to consider when working with scaled data but presenting the unscaled version. We can notice in our histograms above that in the original data we have most of the data with a very small value and then some outliers which have very large values. This can create a major issue when presenting the data, in particular it will make y-axis scale very high and squish all the small value data points on the x-axis. While this is technically correct, the visualization would not correctly convey the message which is the trend that we have detected. In situations like this it is safe to simply present the scaled data instead of reversing the scaling and **explain in the text of your report the reason why you did this**. It might be more difficult to understand the meaning of the effect size/slope since it will not have any meaningful units but the prediction plot will be much more clear and interpretable.  
+There is one imporatant issue to consider when working with scaled data but presenting the unscaled version. We can notice in our histograms above that in the original data we have most of the data with a very small value and then some outliers which have very large values. This can create a major issue when presenting the data, in particular it will make y-axis scale very large and squish all the small value data points on the x-axis. While this is technically correct, the visualization would not correctly convey the message which is the trend that we have detected. In situations like this it is safe to simply present the scaled data instead of reversing the scaling and **explain in the text of your report the reason why you did this**. It might be more difficult to understand the meaning of the effect size/slope since it will not have any meaningful units but the prediction plot will be much more clear and interpretable.  
 
 ## Normalization
 {: #Normalization}
@@ -632,7 +631,7 @@ Now you might ask why you would want to scale data this way if it only changes t
 
 As you can see there are plenty of reasons why we would want to use normalization rather than another type of scaling or transformation. Since showing all of these options is beyond the scope of this tutorial, we will only learn how to apply the normalization procedure in R and show its effects through histograms.
 
-For this part we will work with a different but a very well known dataset called **Palmer Penguins**. It is available through a package in R so you just need to install it and you can access the data at any point hereafter.
+For this part we will work with a different but a very well known dataset called **Palmer Penguins**. It is available through a package in R so you just need to install it and you can access the data at any point hereafter by loading the library.
 
 <center> <img src="{{ site.baseurl }}/palmer_penguins.png" alt="Img" style="width: 800px;"/> </center>
 Source: [Palmer Penguins R package vignette](https://allisonhorst.github.io/palmerpenguins/articles/intro.html). Artwork by Allison Horst.
@@ -682,7 +681,7 @@ penguins_norm <- predict(penguins_mapping, penguins)  # we transform the data us
 ```
 This is much neater than the previous procedure. You can explore the other transformations available in `preProcess()` in the documentation by using the command `help(preProcess)` in your console.
 
-The code for histograms has also got quite repetetive at this point so we will not write the full code here. This is what the histograms would look like for each of the variables with original, unscaled data and normalized data.
+The code for histograms has also got quite repetetive at this point so we will not write the full code here. This is what the histograms would look like for each of the variables with original, unscaled data and normalized data. If you are up for a coding challenge you can try reproducing the plot below.
 
 <center> <img src="{{ site.baseurl }}/penguin_panel.png" alt="Img" style="width: 800px;"/> </center>
 
@@ -692,9 +691,9 @@ After this your data would be ready to be crunched through an algorithm of your 
 
 This is the end of the second part of the tutorial. At this stage you should be comfortable with explaining what scaling aims to achieve, what the differences are between standardization and normalization and when you would use each, and finally be able to apply the procedures in R. After completing the parts on transformations and scaling you are now equipped with several tools to tackle issues with normality, and different scales and units in your data.
 
-<i>There are many other scaling procedures which can be useful in different situations. You can explore scaling on this very good [Wikipedia](https://en.wikipedia.org/wiki/Feature_scaling) page or in this article at [Towards Data Science](https://towardsdatascience.com/all-about-feature-scaling-bcc0ad75cb35) which both mention many other different procedures such as the **robust scaler** and **unit vector scaler**.<i>
+<i> There are many other scaling procedures which can be useful in different situations. You can explore scaling on this very good [Wikipedia](https://en.wikipedia.org/wiki/Feature_scaling) page or in this article at [Towards Data Science](https://towardsdatascience.com/all-about-feature-scaling-bcc0ad75cb35) which both mention many other different procedures such as the **robust scaler** and **unit vector scaler**. <i>
 
-<i>Another important thing to point out is that the terminology used in scaling and transformations can get very confusing and unclear, with each article refering to a single procedure with a different name and sometimes even using one name for two different concepts. Unfortunately, there is no way to avoid this issue. Probably the best strategy to avoid confusion around scaling is to remember **the concepts and formulas instead of names** and present those in your reports.<i>  
+<i> Another important thing to point out is that the terminology used in scaling and transformations can get very confusing and unclear, with each article refering to a single procedure with a different name and sometimes even using one name for two different concepts. Unfortunately, there is no way to avoid this issue. Probably the best strategy to avoid confusion around scaling is to remember **the concepts and formulas instead of names** and present those in your reports to be as clear as possible. <i>  
 
 We will now move on to the last part of the tutorial which will explain how to effectively change the scale on your plots without the need to change the variables themselves.
 
@@ -723,6 +722,7 @@ turtle <- LPI_species %>%
 str(turtle)
 summary(turtle)
 ```
+
 Inspecting the dataset we find out that the units used to describe the population of the turtles are essentially either nesting female counts or nest counts. We will assume that these represent the same phenomenon and therefore can be combined to be a good proxy for population abundance. In this part our goal is just to create a nice visualization showing the population counts, not fully model the trend.
 
 ```r
@@ -735,7 +735,6 @@ Inspecting the dataset we find out that the units used to describe the populatio
          y = 'Population Abundance',
          title = 'Population abundance of the leatherback turtle') +
     plot_theme())  # apply the custom theme
-
 ```
 
 <center> <img src="{{ site.baseurl }}/turtle_scatter.png" alt="Img" style="width: 800px;"/> </center>
